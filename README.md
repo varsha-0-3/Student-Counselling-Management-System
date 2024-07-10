@@ -1,3 +1,3 @@
 # Student-Counselling-Management-System
 
-Hi everyone :D
+Hi everyone, for codes please navigate to master branch :D
