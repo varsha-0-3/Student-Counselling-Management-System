@@ -1,3 +1,9 @@
+# CREATE TABLE documents (
+#     id INT AUTO_INCREMENT PRIMARY KEY,
+#     student_name VARCHAR(255),
+#     filename VARCHAR(255),
+#     file_data LONGBLOB
+# );
 
 
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
