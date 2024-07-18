@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Document</title>
+    <script>
+        function validateFileName() {
+            var fileInput = document.getElementById('file');
+            var fileName = fileInput.value;
+            
+            // Regex to match the required format
+            var regex = /^1RV\d{2}IS\d{3}-[a-zA-Z0-9_]+$/; // Example: 1RV21IS023-studentname
+            
+            if (!regex.test(fileName)) {
+                alert('File name must be in the format (1RV21IS023-studentname)');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h2>Upload Document</h2>
+    <form method="POST" enctype="multipart/form-data" action="/upload" onsubmit="return validateFileName()">
+        <input type="file" name="file" id="file" required accept=".pdf,.doc,.docx">
+        <br><br>
+        Student Name: <input type="text" name="student_name" required>
+        <br><br>
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
