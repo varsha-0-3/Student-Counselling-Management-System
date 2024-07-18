@@ -5,10 +5,10 @@
 #     file_data LONGBLOB
 # );
 
-
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, send_file, flash
 from flask_mysqldb import MySQL
-import os
+from werkzeug.utils import secure_filename
+import io
 
 app = Flask(__name__)
 
