@@ -9,12 +9,23 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">SCMS</div>
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
             <ul>
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#announcements">Announcements</a></li>
+                <li><a href="#contact">Contact</a></li>
             </ul>
+            <div class="dropdown">
+                <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile">
+                <div class="dropdown-content">
+                    <a href="#signin">Sign In</a>
+                    <a href="#signout">Sign Out</a>
+                    <a href="#viewprofile">View Profile</a>
+                    <a href="#option1">Option 1</a>
+                    <a href="#option2">Option 2</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -22,6 +33,8 @@
         <div class="overlay"></div>
         <div class="header-content">
             <h1>Student Counselling Management System</h1>
+            <p>Supporting students in their academic and personal growth</p>
+            <a href="#about" class="btn">Learn More</a>
         </div>
     </header>
 
@@ -31,6 +44,9 @@
             <p>Welcome to the Student Counselling Management System. We are dedicated to providing comprehensive counselling services to support students in their academic and personal growth.</p>
         </div>
     </section>
+
+
+   
 
     <section id="features">
         <div class="container">
@@ -60,6 +76,14 @@
         <div class="container">
             <h2>Announcements</h2>
             <p>Stay tuned for the latest updates and announcements.</p>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>If you have any questions, feel free to reach out to us.</p>
+            <a href="mailto:isedepartment@rvce.edu.in" class="btn">Email Us</a>
         </div>
     </section>
 

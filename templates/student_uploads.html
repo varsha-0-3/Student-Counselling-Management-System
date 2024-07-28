@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="file"],
+        input[type="text"],
+        input[type="submit"] {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function validateFileName() {
+            var fileInput = document.getElementById('file');
+            var fileName = fileInput.value.split('\\').pop();
+            
+            // Regex to match the required format
+            var regex = /^1RV\d{2}IS\d{3}-[a-zA-Z0-9_]+$/; // Example: 1RV21IS023-studentname
+            
+            if (!regex.test(fileName)) {
+                alert('File name must be in the format 1RV21IS023-studentname');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h2>Upload Document</h2>
+    <form method="POST" enctype="multipart/form-data" action="/upload" onsubmit="return validateFileName()">
+        <label for="file">Choose a file:</label>
+        <input type="file" name="file" id="file" required accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+        <br>
+        <label for="student_name">Student Name:</label>
+        <input type="text" name="student_name" id="student_name" required>
+        <br>
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
