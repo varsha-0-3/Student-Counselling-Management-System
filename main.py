@@ -13,13 +13,12 @@ import io
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages and sessions
 
-app.config['MYSQL_HOST'] = '127.0.0.1'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Query@1811'
-app.config['MYSQL_DB'] = 'counsellor_database'
-app.config['MYSQL_PORT'] = 3306
+app.config['MYSQL_HOST'] = 'mysql-scms-6-rvce.d.aivencloud.com'
+app.config['MYSQL_USER'] = 'avnadmin'
+app.config['MYSQL_PASSWORD'] = 'AVNS_E5Yqhjdd1PI5lmsl31P'
+app.config['MYSQL_DB'] = 'scms'
+app.config['MYSQL_PORT'] = 10363
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-#please change the database
 
 mysql = MySQL(app)
 
