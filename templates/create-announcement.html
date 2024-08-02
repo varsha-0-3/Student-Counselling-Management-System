@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Announcement</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="static/home.css">
+    <link rel="stylesheet" href="static/announcements.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+        .form-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .form-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+        }
+        .form-container h2 .fas {
+            margin-right: 10px;
+            color: #007BFF;
+        }
+        .form-container p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-container input, .form-container textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .form-container input:focus, .form-container textarea:focus {
+            border-color: #007BFF;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+        .form-container .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 14px;
+        }
+        .form-container .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <!-- Navigation content -->
+    </nav>
+    <header>
+        <div class="overlay"></div>
+            <div class="form-container">
+                <h2><i class="fas fa-bullhorn"></i> Create a New Announcement</h2>
+                <p>Fill out the form below to create a new announcement.</p>
+                <form action="{{ url_for('submit_announcement') }}" method="post">
+                    <label for="title">Announcement Title</label>
+                    <input type="text" id="title" name="title" required>
+
+                    <label for="content">Announcement Content</label>
+                    <textarea id="content" name="content" rows="5" required></textarea>
+
+                    <button type="submit">Submit Announcement</button>
+                </form>
+                <a href="{{ url_for('announcements') }}" class="back-link">Back to Announcements</a>
+            </div>
+    </header>
+    <footer>
+        <!-- Footer content -->
+    </footer>
+</body>
+</html>

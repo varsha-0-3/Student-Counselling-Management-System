@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements</title>
+    <link rel="stylesheet" href="static/home.css">
+    <link rel="stylesheet" href="static/announcements.css">
+</head>
+<body>
+    <nav>
+        <!-- Navigation content -->
+    </nav>
+    <header>
+        <div class="overlay"></div>
+        <div class="header-content">
+            <h1>Announcements</h1>
+            <p>Scroll down to view the latest announcements for your batch</p>
+        </div>
+    </header>
+    <section id="announcements">
+        <div class="container">
+            <!-- Filter form -->
+            <form class="filter-form" method="get" action="{{ url_for('announcements') }}">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date">
+                <button type="submit">Filter</button>
+            </form>
+
+            <!-- New announcement button -->
+            <a href="{{ url_for('create_announcements') }}" class="new-announcement-btn">Create New Announcement</a>
+            
+            <!-- Existing announcements -->
+            {% for announcement in announcements %}
+            <div class="announcement">
+                <div class="meta">
+                    <time datetime="{{ announcement.date }}">{{ announcement.date }}</time>
+                    <span class="author">Announced by: {{ announcement.author }}</span>
+                </div>
+                <h3><i class="icon">&#9733;</i>{{ announcement.title }}</h3>
+                <p>{{ announcement.content }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    <footer>
+        <!-- Footer content -->
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const announcements = document.querySelectorAll('.announcement');
+            
+            function handleScroll() {
+                const triggerPoint = window.innerHeight / 1.5;
+                announcements.forEach(announcement => {
+                    const rect = announcement.getBoundingClientRect();
+                    if (rect.top < triggerPoint && rect.bottom > 0) {
+                        announcement.classList.add('visible');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Initial check
+        });
+    </script>
+</body>
+</html>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Counselling Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <!-- Add Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <nav>
@@ -45,9 +47,6 @@
         </div>
     </section>
 
-
-   
-
     <section id="features">
         <div class="container">
             <h2>Features</h2>
@@ -71,11 +70,31 @@
             </div>
         </div>
     </section>
-
+   
     <section id="announcements">
         <div class="container">
-            <h2>Announcements</h2>
-            <p>Stay tuned for the latest updates and announcements.</p>
+            <div class="latest-announcements-header">
+                <!-- Use Font Awesome icon -->
+                <i class="fas fa-bullhorn"></i>
+                <h2>Latest Announcements</h2>
+            </div>
+            {% if announcements %}
+                {% for announcement in announcements %}
+                <div class="announcement" id="announcement-{{ loop.index }}">
+                    <div class="meta">
+                        <time datetime="{{ announcement.date }}">{{ announcement.date }}</time>
+                        <span class="author">Announced by: {{ announcement.author }}</span>
+                    </div>
+                    <h3>{{ announcement.title }}</h3>
+                    <p>{{ announcement.content }}</p>
+                </div>
+                {% endfor %}
+                <div class="view-more">
+                    <a href="{{ url_for('announcements') }}">View More Announcements</a>
+                </div>
+            {% else %}
+                <p>No announcements available.</p>
+            {% endif %}
         </div>
     </section>
 
@@ -92,5 +111,22 @@
             <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Add animation to announcements
+            const announcements = document.querySelectorAll('.announcement');
+            announcements.forEach((announcement, index) => {
+                announcement.style.opacity = 0;
+                setTimeout(() => {
+                    announcement.style.transition = 'opacity 0.5s ease-in-out';
+                    announcement.style.opacity = 1;
+                }, index * 200); // Staggered animation
+            });
+        });
+    </script>
+    
+    
+
 </body>
 </html>
