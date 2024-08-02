@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcements</title>
-    <link rel="stylesheet" href="static/home.css">
-    <link rel="stylesheet" href="static/announcements.css">
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="static/css/announcements.css">
 </head>
 <body>
     <nav>
@@ -31,7 +31,7 @@
 
             <!-- New announcement button -->
             <a href="{{ url_for('create_announcements') }}" class="new-announcement-btn">Create New Announcement</a>
-            
+
             <!-- Existing announcements -->
             {% for announcement in announcements %}
             <div class="announcement">
@@ -51,7 +51,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const announcements = document.querySelectorAll('.announcement');
-            
+
             function handleScroll() {
                 const triggerPoint = window.innerHeight / 1.5;
                 announcements.forEach(announcement => {
