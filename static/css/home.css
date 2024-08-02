@@ -101,7 +101,7 @@ nav .dropdown:hover .dropdown-content {
 header {
     position: relative;
     height: 100vh; /* Full viewport height */
-        background: url('../static/images/college.png') no-repeat center center/cover;
+        background: url('../images/college.png') no-repeat center center/cover;
     background-blend-mode: multiply;
     color: #fff;
     text-align: center;
@@ -238,6 +238,7 @@ section#contact .btn {
     font-size: 1rem;
     border-radius: 5px;
     transition: background 0.3s;
+    
 }
 
 section#contact .btn:hover {
