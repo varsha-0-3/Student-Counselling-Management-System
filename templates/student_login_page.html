@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Login and Registration Form</title>
     <link rel="stylesheet" href="../static/css/login.css">
-    <script defer src="../static/js/login_script.js"></script>
+    <!-- <script defer src="../static/js/login_script.js"></script> -->
 </head>
 <body>
 <div class="parent-div">
@@ -17,17 +17,8 @@
         <section class="vertical-section-2">
             <div class="login-signup-holder">
                 <div class="forms" style="border-radius: 10px;">
-                    <!-- Login Form -->
-                    <form id="login-form" class="login-form" action="{{ url_for('register') }}" method="POST">
-                        <h2 class="heading-text">Login</h2>
-                        <input type="hidden" name="form_type" value="login">
-                        <input type="text" name="usn" placeholder="USN" required />
-                        <input type="password" name="password" placeholder="Password" required />
-                        <button type="submit">Login</button>
-                        <p class="message">Not registered? <a onclick="toggleForms()">Signup</a></p>
-                    </form>
-                    <!-- Register Form -->
-                    <form id="register-form" class="register-form hidden" action="{{ url_for('register') }}" method="POST">
+                     <!-- Register Form -->
+                     <form id="register-form" class="register-form hidden" action="{{ url_for('register') }}" method="POST">
                         <h2 class="heading-text">Sign Up</h2>
                         <input type="hidden" name="form_type" value="register">
                         <input type="text" id="name" name="name" placeholder="Name" required />
@@ -57,6 +48,16 @@
                         <button type="submit">Signup</button>
                         <p class="message">Already registered? <a onclick="toggleForms()">Login</a></p>
                     </form>
+                    <!-- Login Form -->
+                    <form id="login-form" class="login-form" action="{{ url_for('register') }}" method="POST">
+                        <h2 class="heading-text">Login</h2>
+                        <input type="hidden" name="form_type" value="login">
+                        <input type="text" name="usn" placeholder="USN" required />
+                        <input type="password" name="password" placeholder="Password" required />
+                        <button type="submit">Login</button>
+                        <p class="message">Not registered? <a onclick="toggleForms()">Signup</a></p>
+                    </form>
+                    
                 </div>
             </div>
         </section>

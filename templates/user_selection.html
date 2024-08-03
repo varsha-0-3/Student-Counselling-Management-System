@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Counselling Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/userSelection.css') }}">
+</head>
+<body>
+<nav>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo" alt="RVCE Logo">
+    </div>
+</nav>
+<main>
+    <div class="card-basic">
+        <div class="card-header header-basic">
+            <h1>Student</h1>
+        </div>
+        <div class="card-body">
+            <div class="card-element-hidden-basic">
+                <ul class="card-element-container">
+                    <li class="card-element">View Announcements</li>
+                    <li class="card-element">Upload Documents</li>
+                    <li class="card-element">Track Academics record</li>
+                </ul>
+                <a href="{{ url_for('student_login') }}" class="btn btn-basic">Register / Sign in</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-standard">
+        <div class="card-header header-standard">
+            <h1>Counsellor</h1>
+        </div>
+        <div class="card-body">
+            <div class="card-element-hidden-standard">
+                <ul class="card-element-container">
+                    <li class="card-element">Make Announcements</li>
+                    <li class="card-element">Track NSSR</li>
+                    <li class="card-element">Verify Document Submissions</li>
+                </ul>
+                <a href="{{ url_for('counsellor_login') }}" class="btn btn-standard">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-premium">
+        <div class="card-header header-premium">
+            <h1>Admin</h1>
+        </div>
+        <div class="card-body">
+            <p><h4>*Privileged*</h4></p>
+            <div class="card-element-hidden-premium">
+                
+                <a href="{{ url_for('admin_login') }}" class="btn btn-premium">Sign in</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
