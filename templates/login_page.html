@@ -1,5 +1,3 @@
-#database logic not added
-
 <!doctype html>
 <html>
 <head>
@@ -10,16 +8,11 @@
 </head>
 <body>
 <div class="parent-div">
-    
     <nav>
         <div class="container">
             <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
-                        
         </div>
     </nav>
-
-  
-
     <div class="vertical-section-holder">
         <section class="vertical-section-2">
             <div class="login-signup-holder">
@@ -31,7 +24,7 @@
                         <input type="text" name="usn" placeholder="USN" required />
                         <input type="password" name="password" placeholder="Password" required />
                         <button type="submit">Login</button>
-                        <p class="message">Not registered? <a  onclick="toggleForms()">Signup</a></p>
+                        <p class="message">Not registered? <a onclick="toggleForms()">Signup</a></p>
                     </form>
                     <!-- Register Form -->
                     <form id="register-form" class="register-form hidden" action="{{ url_for('register') }}" method="POST">
@@ -39,12 +32,30 @@
                         <input type="hidden" name="form_type" value="register">
                         <input type="text" id="name" name="name" placeholder="Name" required />
                         <input type="text" id="usn" name="usn" placeholder="USN" required />
-                        <input type="text" id="phone" name="phone" placeholder="Phone" required />
-                        <input type="email" id="email" name="email" placeholder="Email" required />
+                        <div class="input-row">
+                            <input type="text" id="phone" name="phone" placeholder="Phone no." required style="
+                            width: 38%;
+                            padding: 12px;
+                        "/>
+                            <input type="email" id="email" name="email" placeholder="Email id" required style="
+                            width:72%;
+                            padding: 12px;
+                        "/>
+                        </div>
+                        <div class="input-row">
+                            <input type="text" id="parent_phone" name="parent_phone" placeholder="Parent Phone" required style="
+                            width: 38%;
+                            padding: 12px;
+                        "/>
+                            <input type="email" id="parent_email" name="parent_email" placeholder="Parent Email id" required style="
+                            width: 72%;
+                            padding: 12px;
+                        "/>
+                        </div>
                         <input type="password" id="password" name="password" placeholder="Password" required />
                         <input type="password" id="cpassword" name="cpassword" placeholder="Confirm Password" required />
                         <button type="submit">Signup</button>
-                        <p class="message">Already registered? <a  onclick="toggleForms()">Login</a></p>
+                        <p class="message">Already registered? <a onclick="toggleForms()">Login</a></p>
                     </form>
                 </div>
             </div>
@@ -62,7 +73,6 @@
         document.getElementById('register-form').classList.toggle('hidden');
     }
 </script>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js">
-</script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 </body>
 </html>
