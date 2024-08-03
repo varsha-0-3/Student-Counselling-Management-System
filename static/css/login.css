@@ -5,9 +5,7 @@
 }
 
 body {
-    /* background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url("../images/college.png"); */
     background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("../images/college.png");
-
     height: 100%;
     background-size: cover;
     background-position: center;
@@ -15,7 +13,7 @@ body {
 }
 
 nav {
-    background: rgba(1, 12, 22, 0.8); /* Semi-transparent background */
+    background: rgba(1, 12, 22, 0.8);
     color: #fff;
     padding: 13px;
     position: fixed;
@@ -37,8 +35,6 @@ nav .logo {
     max-width: 117px;
     object-fit: contain;
 }
-
-
 
 .parent-div {
     display: flex;
@@ -74,16 +70,16 @@ nav .logo {
 }
 
 .login-signup-holder {
-    width: 360px;
+    width: 400px;
     padding: 10% 0 0;
     margin: 0 auto;
 }
 
 .forms {
     background: rgba(52, 158, 235, 1);
-    max-width: 360px;
+    max-width: 400px;
     margin: 80px auto 100px;
-    padding: 45px;
+    padding: 40px;
     text-align: center;
     background: rgb(43 54 63 / 75%);
 }
@@ -105,6 +101,15 @@ nav .logo {
     font-size: 14px;
 }
 
+.forms .input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.forms .input-row input {
+    width: 50%;
+}
+
 .forms button {
     font-family: "Roboto", sans-serif;
     text-transform: uppercase;
@@ -119,26 +124,11 @@ nav .logo {
     cursor: pointer;
 }
 
-/*
-.button {
-  display: inline-block;
-  border: none;
-  text-decoration: none;
-  font-family: "Roboto", sans-serif;
-  text-transform: uppercase;
-  background: #453FCF;
-  width: 89%;
-  padding: 15px;
-  color: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-}
-*/
 .forms .message {
     margin: 15px 0 0;
     color: aliceblue;
     font-size: 16px;
- cursor: pointer;
+    cursor: pointer;
 }
 
 .forms .message a {
@@ -148,10 +138,6 @@ nav .logo {
 }
 
 .forms button:hover, .forms button:active {
-    background: #7F39FF;
-}
-
-.button:hover, .button:active {
     background: #7F39FF;
 }
 
