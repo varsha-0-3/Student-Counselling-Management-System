@@ -28,8 +28,8 @@ def select_user():
 def student_login():
     return render_template("student_login_page.html")
 
-@app.route('/student/register', methods=['GET', 'POST'])
-def register():
+@app.route('/student/login', methods=['GET', 'POST'])
+def register_login_student():
     if request.method == 'POST':
         form_type = request.form.get('form_type')
         
@@ -46,7 +46,7 @@ def register():
             if user:
                 session['logged_in'] = True
                 session['usn'] = usn
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('student_dashboard'))
             else:
                 flash('Invalid credentials')
         
@@ -72,65 +72,23 @@ def register():
                 
                 session['logged_in'] = True
                 session['usn'] = usn
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('student_dashboard'))
             else:
                 flash('Passwords do not match')
     
     return render_template('student_login_page.html')
-# @app.route("/student")
-# def student_login():
-#     return render_template("student_login_page.html")
 
-
-# @app.route('/student/register', methods=['GET', 'POST'])
-# def register():
-#     if request.method == 'POST':
-#         form_type = request.form.get('form_type')
-        
-#         if form_type == 'login':
-#             usn = request.form['usn']
-#             password = request.form['password']
-#             # Perform your login validation logic here
-#             # Example check, replace with actual logic and database query
-#             if usn == 'test' and password == 'test':  
-#                 session['logged_in'] = True
-#                 session['usn'] = usn
-#                 return redirect(url_for('dashboard'))
-#             else:
-#                 flash('Invalid credentials')
-        
-#         elif form_type == 'register':
-#             name = request.form['name']
-#             usn = request.form['usn']
-#             phone = request.form['phone']
-#             email = request.form['email']
-#             password = request.form['password']
-#             cpassword = request.form['cpassword']
-#             # Perform your registration validation logic here
-#             if password == cpassword:  # Example check, replace with actual logic
-#                 # Save registration details to the database
-#                 cursor = mysql.connection.cursor()
-#                 cursor.execute('INSERT INTO users (name, usn, phone, email, password) VALUES (%s, %s, %s, %s, %s)', (name, usn, phone, email, password))
-#                 mysql.connection.commit()
-#                 cursor.close()
-#                 session['logged_in'] = True
-#                 session['usn'] = usn
-#                 return redirect(url_for('dashboard'))
-#             else:
-#                 flash('Passwords do not match')
-    
-#     return render_template('student_login_page.html')
 
 @app.route('/student/dashboard')
-def dashboard():
+def student_dashboard():
     if not session.get('logged_in'):
-        return redirect(url_for('register'))
+        return redirect(url_for('register_login_student'))
     return render_template('student_dashboard.html')
 
 @app.route('/student/documents/upload', methods=['GET', 'POST'])
 def upload_file():
     if not session.get('logged_in'):
-        return redirect(url_for('register'))
+        return redirect(url_for('register_login_student'))
     
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -164,7 +122,7 @@ def upload_file():
 @app.route('/student/documents/view_document/<int:document_id>')
 def view_document(document_id):
     if not session.get('logged_in'):
-        return redirect(url_for('register'))
+        return redirect(url_for('register_login_student'))
     
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT filename, file_data FROM documents WHERE id = %s', (document_id,))
@@ -178,13 +136,51 @@ def view_document(document_id):
         return send_file(io.BytesIO(file_data), download_name=filename, as_attachment=False)
     else:
         return 'File not found'
+    
+
+@app.route('/student/logout')
+def student_logout():
+    session.clear()
+    return redirect(url_for('register_login_student'))
 #------------------------------------------------------------
 
 #counsellor----------------------------------------------------------------------
 @app.route("/counsellor")
 def counsellor_login():
-    return render_template("student_login_page.html")
+    return render_template("counsellor_login_page.html")
 
+
+@app.route('/counsellor/login', methods=['GET', 'POST'])
+def register_login_counsellor():
+    if request.method == 'POST':
+        c_name = request.form['name']
+        password = request.form['password']
+        
+        # Perform login validation
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM counsellor WHERE c_name = %s AND password = %s', (c_name, password))
+        user = cursor.fetchone()
+        cursor.close()
+        
+        if user:
+            session['logged_in'] = True
+            session['name'] = c_name
+            return redirect(url_for('counsellor_dashboard'))
+        else:
+            flash('Invalid credentials')
+    
+    return render_template('counsellor_login_page.html')
+
+@app.route('/counsellor/dashboard')
+def counsellor_dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+    return render_template('counsellor_dashboard.html')
+
+@app.route('/counsellor/logout')
+def counsellor_logout():
+    session.clear()
+    return redirect(url_for('register_login_counsellor'))
 #------------------------------------------------------------------------------------------
 
 
@@ -192,19 +188,41 @@ def counsellor_login():
 #admin----------------------------------------------------------------------
 @app.route("/admin")
 def admin_login():
-    return render_template("student_login_page.html")
+    return render_template("admin_login_page.html")
 
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def register_login_admin():
+    if request.method == 'POST':
+        admin_email = request.form['email']
+        admin_password = request.form['password']
+        
+        # Perform login validation
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM admin WHERE admin_email = %s AND admin_password = %s', (admin_email, admin_password))
+        user = cursor.fetchone()
+        cursor.close()
+        
+        if user:
+            session['logged_in'] = True
+            session['email'] = admin_email
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid credentials')
+    
+    return render_template('admin_login_page.html')
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_admin'))
+    return render_template('admin_dashboard.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.clear()
+    return redirect(url_for('register_login_admin'))
 #------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -256,10 +274,7 @@ def submit_announcement():
 
         return redirect(url_for('announcements'))
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('register'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Counselling Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
+            <ul>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#announcements">Announcements</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="dropdown">
+                <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile">
+                <div class="dropdown-content">
+                    <a href="{{ url_for('counsellor_logout') }}">Sign Out</a>
+                    <a href="#viewprofile">View Profile</a>
+                    
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    
+
+    <section id="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>If you have any questions, feel free to reach out to us.</p>
+            <a href="mailto:isedepartment@rvce.edu.in" class="btn">Email Us</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
