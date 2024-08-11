@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Announcement</title>
+    <title>Edit Announcement</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="static/css/home.css">
     <link rel="stylesheet" href="static/css/announcements.css">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+        font-family: 'Arial', sans-serif;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../static/images/college.png'); /* Adjust path if necessary */
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-color: #f4f4f4; /* Fallback color */
         }
         .form-container {
             position: absolute;
@@ -95,19 +99,19 @@
     <header>
         <div class="overlay"></div>
             <div class="form-container">
-                <h2><i class="fas fa-bullhorn"></i> Create a New Announcement</h2>
-                <p>Fill out the form below to create a new announcement.</p>
-                <form action="{{ url_for('submit_announcement') }}" method="post">
-                    <label for="title">Announcement Title</label>
-                    <input type="text" id="title" name="title" required>
+                <h2><i class="fas fa-edit"></i> Edit Announcement</h2>
+                <p>Update the details of the announcement below.</p>
+                <form method="post">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" value="{{ announcement.title }}" required>
 
-                    <label for="content">Announcement Content</label>
-                    <textarea id="content" name="content" rows="5" required></textarea>
+                    <label for="content">Content:</label>
+                    <textarea id="content" name="content" rows="5" required>{{ announcement.content }}</textarea>
 
-                    <label for="link">Attachment Link (optional)</label>
-                    <input type="url" id="link" name="link" placeholder="http://example.com">
+                    <label for="link">Link (Optional):</label>
+                    <input type="url" id="link" name="link" value="{{ announcement.link }}">
 
-                    <button type="submit">Submit Announcement</button>
+                    <button type="submit">Save Changes</button>
                 </form>
                 <a href="{{ url_for('announcements') }}" class="back-link">Back to Announcements</a>
             </div>

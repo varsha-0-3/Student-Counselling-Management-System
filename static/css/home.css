@@ -317,3 +317,36 @@ text-align: center; /* Center text within header */
     font-size: 28px;
     color: #333;
 }
+
+
+/* For announcements */
+.announcement-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1; /* Ensure the buttons are above other content */
+}
+
+.edit-btn,
+.delete-btn {
+    display: inline-block;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.edit-btn {
+    background-color: #007bff; /* Blue color for Edit button */
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Red color for Delete button */
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+    opacity: 0.8; /* Slightly fade on hover */
+}

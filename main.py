@@ -4,6 +4,8 @@ from werkzeug.utils import secure_filename
 import io
 import MySQLdb
 from datetime import datetime
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+import jinja2
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages and sessions
@@ -18,6 +20,11 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
+#--------So that the points(which has to appear in new lines) don't become paragraphs in announcements-------
+@app.template_filter('nl2br')
+def nl2br(value):
+    """Converts newlines in text to HTML line breaks."""
+    return value.replace('\n', '<br>\n')
 
 @app.route('/select_user', methods=['GET', 'POST'])
 def select_user():
@@ -246,15 +253,44 @@ def submit_announcement():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
+        link = request.form.get('link')
         author = "BK Srinivas"
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO announcements (author, date, title, content) VALUES (%s, %s, %s, %s)''', (author, date, title, content))
+        cursor.execute(''' INSERT INTO announcements (author, date, title, content, link) VALUES (%s, %s, %s, %s, %s)''', (author, date, title, content, link))
         mysql.connection.commit()
         cursor.close()
 
         return redirect(url_for('announcements'))
+    
+@app.route('/edit-announcement/<int:id>', methods=['GET', 'POST'])
+def edit_announcement(id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        
+        cursor.execute('UPDATE announcements SET title = %s, content = %s WHERE id = %s', (title, content, id))
+        mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('announcements'))
+    else:
+        cursor.execute('SELECT * FROM announcements WHERE id = %s', (id,))
+        announcement = cursor.fetchone()
+        cursor.close()
+        return render_template('edit-announcement.html', announcement=announcement)
+
+# Route to delete an announcement
+@app.route('/delete-announcement/<int:id>', methods=['GET'])
+def delete_announcement(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM announcements WHERE id = %s', (id,))
+    mysql.connection.commit()
+    cursor.close()
+    return redirect(url_for('announcements'))
+
 
 @app.route('/logout')
 def logout():

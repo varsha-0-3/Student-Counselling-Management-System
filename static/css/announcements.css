@@ -55,13 +55,13 @@
     background-color: #0056b3;
 }
 .announcement {
+    position: relative; /* Ensure this container allows absolute positioning inside */
     margin-bottom: 20px;
     padding: 20px;
     border-radius: 12px;
     background: linear-gradient(135deg, #e2e2e2, #ffffff);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     border: 1px solid #ddd;
-    position: relative;
     overflow: hidden;
     opacity: 0;
     transform: translateY(30px);
@@ -72,6 +72,7 @@
     opacity: 1;
     transform: translateY(0);
 }
+
 .announcement::before {
     content: "";
     position: absolute;
@@ -83,6 +84,7 @@
     opacity: 0.5;
     z-index: 0;
 }
+
 .announcement .meta {
     margin-bottom: 15px;
     color: #666;
@@ -90,13 +92,16 @@
     z-index: 1;
     position: relative;
 }
+
 .announcement .meta time {
     display: block;
     font-size: 12px;
 }
+
 .announcement .meta .author {
     font-weight: bold;
 }
+
 .announcement h3 {
     margin: 0;
     font-size: 26px;
@@ -106,8 +111,8 @@
     border-bottom: 2px solid #007BFF;
     padding-bottom: 10px;
     margin-bottom: 15px;
-    /* font-size: 1.5rem; */
 }
+
 .announcement p {
     margin: 0.5rem 0;
     color: #444;
@@ -116,12 +121,46 @@
     z-index: 1;
     position: relative;
 }
+
 .announcement:hover {
     background: linear-gradient(135deg, #ffffff, #f0f4f8);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
+
 .announcement .icon {
     font-size: 24px;
     color: #007BFF;
     margin-right: 10px;
+}
+
+/* Absolute positioning for the action buttons */
+.announcement-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1; /* Ensure the buttons are above other content */
+}
+
+.edit-btn,
+.delete-btn {
+    display: inline-block;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.edit-btn {
+    background-color: #007bff; /* Blue color for Edit button */
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Red color for Delete button */
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+    opacity: 0.8; /* Slightly fade on hover */
 }
