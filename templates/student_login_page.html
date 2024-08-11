@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Login and Registration Form</title>
     <link rel="stylesheet" href="../static/css/login.css">
-    <!-- <script defer src="../static/js/login_script.js"></script> -->
+    <script defer src="../static/js/login_script.js"></script>
 </head>
 <body>
 <div class="parent-div">
@@ -17,47 +17,34 @@
         <section class="vertical-section-2">
             <div class="login-signup-holder">
                 <div class="forms" style="border-radius: 10px;">
-                     <!-- Register Form -->
-                     <form id="register-form" class="register-form hidden" action="{{ url_for('register') }}" method="POST">
+                    <!-- Register Form -->
+                    <form id="register-form" class="register-form hidden" action="{{ url_for('register_login_student') }}" method="POST">
                         <h2 class="heading-text">Sign Up</h2>
                         <input type="hidden" name="form_type" value="register">
                         <input type="text" id="name" name="name" placeholder="Name" required />
                         <input type="text" id="usn" name="usn" placeholder="USN" required />
                         <div class="input-row">
-                            <input type="text" id="phone" name="phone" placeholder="Phone no." required style="
-                            width: 38%;
-                            padding: 12px;
-                        "/>
-                            <input type="email" id="email" name="email" placeholder="Email id" required style="
-                            width:72%;
-                            padding: 12px;
-                        "/>
+                            <input type="text" id="phone" name="phone" placeholder="Phone no." required style="width: 38%; padding: 12px;"/>
+                            <input type="email" id="email" name="email" placeholder="Email id" required style="width:72%; padding: 12px;"/>
                         </div>
                         <div class="input-row">
-                            <input type="text" id="parent_phone" name="parent_phone" placeholder="Parent Phone" required style="
-                            width: 38%;
-                            padding: 12px;
-                        "/>
-                            <input type="email" id="parent_email" name="parent_email" placeholder="Parent Email id" required style="
-                            width: 72%;
-                            padding: 12px;
-                        "/>
+                            <input type="text" id="parent_phone" name="parent_phone" placeholder="Parent Phone" required style="width: 38%; padding: 12px;"/>
+                            <input type="email" id="parent_email" name="parent_email" placeholder="Parent Email id" required style="width: 72%; padding: 12px;"/>
                         </div>
                         <input type="password" id="password" name="password" placeholder="Password" required />
                         <input type="password" id="cpassword" name="cpassword" placeholder="Confirm Password" required />
                         <button type="submit">Signup</button>
-                        <p class="message">Already registered? <a onclick="toggleForms()">Login</a></p>
+                        <p class="message">Already registered? <a href="#" onclick="toggleForms('login')">Login</a></p>
                     </form>
                     <!-- Login Form -->
-                    <form id="login-form" class="login-form" action="{{ url_for('register') }}" method="POST">
+                    <form id="login-form" class="login-form" action="{{ url_for('register_login_student') }}" method="POST">
                         <h2 class="heading-text">Login</h2>
                         <input type="hidden" name="form_type" value="login">
                         <input type="text" name="usn" placeholder="USN" required />
                         <input type="password" name="password" placeholder="Password" required />
                         <button type="submit">Login</button>
-                        <p class="message">Not registered? <a onclick="toggleForms()">Signup</a></p>
+                        <p class="message">Not registered? <a href="#" onclick="toggleForms('register')">Signup</a></p>
                     </form>
-                    
                 </div>
             </div>
         </section>
@@ -68,12 +55,76 @@
         </div>
     </footer>
 </div>
-<script>
-    function toggleForms() {
-        document.getElementById('login-form').classList.toggle('hidden');
-        document.getElementById('register-form').classList.toggle('hidden');
-    }
-</script>
+
+<!-- The Modal -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modal-error-message"></p>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Retrieve and set form state from local storage
+        const currentForm = localStorage.getItem('formType') || 'login';
+        toggleForms(currentForm);
+
+        // Handle form submission
+        document.getElementById('login-form').addEventListener('submit', handleFormSubmit);
+        document.getElementById('register-form').addEventListener('submit', handleFormSubmit);
+
+        // Toggle forms visibility
+        function toggleForms(formType) {
+            if (formType === 'register') {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+            } else {
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+            }
+            localStorage.setItem('formType', formType); // Save form state
+        }
+
+        // Handle form submission
+        function handleFormSubmit(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            const form = e.target;
+            const formType = form.querySelector('input[name="form_type"]').value;
+
+            // Perform client-side validation
+            let isValid = true;
+            // Add your validation logic here
+
+            if (isValid) {
+                form.submit(); // Submit the form if valid
+            } else {
+                showErrorModal('Please correct the errors in the form.');
+            }
+        }
+
+        // Display error modal
+        const modal = document.getElementById("errorModal");
+        const modalMessage = document.getElementById("modal-error-message");
+        const closeBtn = document.getElementsByClassName("close")[0];
+
+        function showErrorModal(message) {
+            modalMessage.textContent = message;
+            modal.style.display = "block";
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    });
+</script>
 </body>
 </html>

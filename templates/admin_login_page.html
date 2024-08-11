@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Login Form</title>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <script defer src="../static/js/login_script.js"></script>
+
+    <style>
+        .forms .login-form {
+    display: block; /* or remove this line if the class should not hide the form */
+}
+
+    </style>
+</head>
+<body>
+<div class="parent-div">
+    <nav>
+        <div class="container">
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
+        </div>
+    </nav>
+    <div class="vertical-section-holder">
+        <section class="vertical-section-2">
+            <div class="login-signup-holder">
+                <div class="forms" style="border-radius: 10px;">
+                    <!-- Login Form -->
+                    <form id="login-form" class="login-form" visibility: visible; action="{{ url_for('register_login_admin') }}" method="POST">
+                        <h2 class="heading-text">Admin Login</h2>
+                        <input type="email" id="email" name="email" placeholder="Email id" required />
+                        <input type="password" id="password" name="password" placeholder="Password" required />
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</div>
+
+<!-- The Modal -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modal-error-message"></p>
+    </div>
+</div>
+<script> $(".message a").click(function () {
+    $(".forms .login-form, .forms .register-form").toggle(); // Toggle both forms if needed
+});</script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</body>
+</html>
