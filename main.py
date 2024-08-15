@@ -17,8 +17,8 @@ app.config['MYSQL_DB'] = 'scms'
 app.config['MYSQL_PORT'] = 10363
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
-
 mysql = MySQL(app)
+
 
 #--------So that the points(which has to appear in new lines) don't become paragraphs in announcements-------
 @app.template_filter('nl2br')
@@ -352,6 +352,7 @@ def add_meeting():
 
     return render_template('counsellor_dashboard.html')
 
+# schedule meetings html page will be rendered.
 @app.route('/schedule_meetings')
 def schedule_meetings():
     return render_template('schedule_meetings.html')
