@@ -1,11 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session, make_response
 from flask_mysqldb import MySQL
 from werkzeug.utils import secure_filename
 import io
 import MySQLdb
 from datetime import datetime
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-import jinja2
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages and sessions
@@ -18,7 +16,6 @@ app.config['MYSQL_PORT'] = 10363
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
-
 
 #--------So that the points(which has to appear in new lines) don't become paragraphs in announcements-------
 @app.template_filter('nl2br')
@@ -56,6 +53,7 @@ def register_login_student():
                 return redirect(url_for('student_dashboard'))
             else:
                 flash('Invalid credentials')
+                return redirect(url_for('register_login_student') + '#')
         
         elif form_type == 'register':
             name = request.form['name']
@@ -82,6 +80,7 @@ def register_login_student():
                 return redirect(url_for('student_dashboard'))
             else:
                 flash('Passwords do not match')
+                
     
     return render_template('student_login_page.html')
 
@@ -90,7 +89,10 @@ def register_login_student():
 def student_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_student'))
-    return render_template('student_dashboard.html')
+
+    response = make_response(render_template('student_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/student/documents/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -148,7 +150,7 @@ def view_document(document_id):
 @app.route('/student/logout')
 def student_logout():
     session.clear()
-    return redirect(url_for('register_login_student'))
+    return redirect(url_for('home'))
 #------------------------------------------------------------
 
 #counsellor----------------------------------------------------------------------
@@ -183,7 +185,10 @@ def register_login_counsellor():
 def counsellor_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_counsellor'))
-    return render_template('counsellor_dashboard.html')
+
+    response = make_response(render_template('counsellor_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/counsellor/logout')
 def counsellor_logout():
@@ -224,7 +229,10 @@ def register_login_admin():
 def admin_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_admin'))
-    return render_template('admin_dashboard.html')
+
+    response = make_response(render_template('admin_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/admin/logout')
 def admin_logout():
@@ -241,7 +249,6 @@ def home():
     cursor.execute("SELECT * FROM announcements ORDER BY date DESC LIMIT 3")
     latest_announcements = cursor.fetchall()
     cursor.close()
-    print(latest_announcements) 
     return render_template('home.html', announcements=latest_announcements)
 
 
@@ -251,7 +258,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# route for Annoucements page
+# route for Announcements page
 @app.route('/announcements')
 def announcements():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -261,12 +268,12 @@ def announcements():
     return render_template('announcements.html', announcements=announcements)
 
 
-# route for creat-Annoucements page
+# route for create-Announcements page
 @app.route('/create-announcement')
 def create_announcements():
     return render_template('create-announcement.html')
 
-# After submitting the create annoucement form
+# After submitting the create announcement form
 @app.route('/submit-announcement', methods=['POST'])
 def submit_announcement():
     if request.method == 'POST':
@@ -274,14 +281,15 @@ def submit_announcement():
         content = request.form['content']
         link = request.form.get('link')
         author = "BK Srinivas"
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        date = datetime.now().strftime('%Y-%m-%d')
+        
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO announcements (author, date, title, content, link) VALUES (%s, %s, %s, %s, %s)''', (author, date, title, content, link))
+        cursor.execute('INSERT INTO announcements (title, content, link, author, date) VALUES (%s, %s, %s, %s, %s)', (title, content, link, author, date))
         mysql.connection.commit()
         cursor.close()
-
+        flash('Announcement created successfully!')
         return redirect(url_for('announcements'))
+    
     
 @app.route('/edit-announcement/<int:id>', methods=['GET', 'POST'])
 def edit_announcement(id):

@@ -4,13 +4,10 @@
     <meta charset="utf-8">
     <title>Login Form</title>
     <link rel="stylesheet" href="../static/css/login.css">
-    <script defer src="../static/js/login_script.js"></script>
-
     <style>
         .forms .login-form {
-    display: block; /* or remove this line if the class should not hide the form */
-}
-
+            display: block; /* or remove this line if the class should not hide the form */
+        }
     </style>
 </head>
 <body>
@@ -25,10 +22,10 @@
             <div class="login-signup-holder">
                 <div class="forms" style="border-radius: 10px;">
                     <!-- Login Form -->
-                    <form id="login-form" class="login-form" visibility: visible; action="{{ url_for('register_login_counsellor') }}" method="POST">
+                    <form id="login-form-counsellor" class="login-form" visibility: visible; action="{{ url_for('register_login_counsellor') }}" method="POST">
                         <h2 class="heading-text">Counsellor Login</h2>
-                        <input type="text" id="name" name="name" placeholder="Name" required />                     
-                        <input type="password" id="password" name="password" placeholder="Password" required />
+                        <input type="text" id="name" name="name" placeholder="Name" required autocomplete="username" />
+                        <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password" />
                         <button type="submit">Login</button>
                     </form>
                 </div>
@@ -49,10 +46,17 @@
         <p id="modal-error-message"></p>
     </div>
 </div>
-<script> $(".message a").click(function () {
-    $(".forms .login-form, .forms .register-form").toggle(); // Toggle both forms if needed
-});</script>
 
+<!-- Load jQuery before using it -->
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+<!-- Inline script using jQuery -->
+<script>
+    $(".message a").click(function () {
+        $(".forms .login-form-counsellor, .forms .register-form").toggle(); // Toggle both forms if needed
+    });
+</script>
+
+<script defer src="../static/js/login_script.js"></script>
 </body>
 </html>
