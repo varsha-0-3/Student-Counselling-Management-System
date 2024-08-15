@@ -172,6 +172,7 @@ def register_login_counsellor():
         if user:
             session['logged_in'] = True
             session['name'] = c_name
+            session['counsellor_id'] = user['c_id']
             return redirect(url_for('counsellor_dashboard'))
         else:
             flash('Invalid credentials')
@@ -309,8 +310,83 @@ def delete_announcement(id):
     cursor.close()
     return redirect(url_for('announcements'))
 
+# add the meeting to the database.
+@app.route('/add_meeting', methods=['POST'])
+def add_meeting():
+    if request.method == 'POST':
+        # Retrieve form data
+        date = request.form['date']
+        time_12hr = request.form['time']
+        link = request.form['link']
+        description = request.form.get('description', '')
+
+        # Retrieve counsellor_id from session
+        counsellor_id = session.get('counsellor_id')
+
+        # Convert 12-hour time format with AM/PM to 24-hour format
+        time_24hr = datetime.strptime(time_12hr, '%I:%M %p').strftime('%H:%M')
+
+        # Ensure the selected time is greater than the current time if it's the same day
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_time = datetime.now().strftime('%H:%M')
+
+        if date == current_date and time_24hr <= current_time:
+            flash('Error: The time must be greater than the current time for the same day.', 'danger')
+            return redirect(url_for('schedule_meetings'))
+
+        # Insert data into the 'meeting' table
+        cursor = mysql.connection.cursor()
+        try:
+            cursor.execute('''INSERT INTO meeting (date, time, link, description, counsellorid) 
+                              VALUES (%s, %s, %s, %s, %s)''',
+                           (date, time_24hr, link, description, counsellor_id))
+            mysql.connection.commit()
+            flash('Meeting scheduled successfully!', 'success')
+        except MySQLdb.Error as e:
+            mysql.connection.rollback()
+            flash(f'Error scheduling meeting: {e}', 'danger')
+        finally:
+            cursor.close()
+
+        return render_template('counsellor_dashboard.html')
+
+    return render_template('counsellor_dashboard.html')
 
 
+
+@app.route('/view_meetings')
+def view_meetings():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT date, time, link, description FROM meeting ORDER BY date, time ASC')
+    meetings = cursor.fetchall()
+    cursor.close()
+
+    return render_template('view_meetings.html', meetings=meetings)
+
+@app.route('/student/student_view_meetings')
+def student_view_meetings():
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_student'))
+
+    usn = session.get('usn')
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Query to join student and meeting tables and fetch relevant meetings
+    query = '''
+        SELECT m.date, m.time, m.link, m.description 
+        FROM student s
+        JOIN counsellor_student cs ON s.usn = cs.usn
+        JOIN meeting m ON cs.c_id = m.counsellorid
+        WHERE s.usn = %s
+        ORDER BY m.date, m.time ASC
+    '''
+    
+    cursor.execute(query, (usn,))
+    meetings = cursor.fetchall()
+    cursor.close()
+
+    return render_template('view_meetings.html', meetings=meetings)
 
 if __name__ == '__main__':
     app.run(debug=True)
