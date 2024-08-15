@@ -25,12 +25,14 @@ def nl2br(value):
 
 @app.route('/select_user', methods=['GET', 'POST'])
 def select_user():
-    return render_template("user_selection.html")
+    response = make_response(render_template("user_selection.html"))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
     
 #---------------------------------------student-----------------------------------------------------
-@app.route("/student")
-def student_login():
-    return render_template("student_login_page.html")
+# @app.route("/student")
+# def student_login():
+#     return render_template("student_login_page.html")
 
 @app.route('/student/login', methods=['GET', 'POST'])
 def register_login_student():
@@ -150,13 +152,13 @@ def view_document(document_id):
 @app.route('/student/logout')
 def student_logout():
     session.clear()
-    return redirect(url_for('home'))
+    return redirect(url_for('select_user'))
 #------------------------------------------------------------
 
 #counsellor----------------------------------------------------------------------
-@app.route("/counsellor")
-def counsellor_login():
-    return render_template("counsellor_login_page.html")
+# @app.route("/counsellor")
+# def counsellor_login():
+#     return render_template("counsellor_login_page.html")
 
 
 @app.route('/counsellor/login', methods=['GET', 'POST'])
@@ -193,15 +195,15 @@ def counsellor_dashboard():
 @app.route('/counsellor/logout')
 def counsellor_logout():
     session.clear()
-    return redirect(url_for('register_login_counsellor'))
+    return redirect(url_for('select_user'))
 #------------------------------------------------------------------------------------------
 
 
 
 #admin----------------------------------------------------------------------
-@app.route("/admin")
-def admin_login():
-    return render_template("admin_login_page.html")
+# @app.route("/admin")
+# def admin_login():
+#     return render_template("admin_login_page.html")
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -237,7 +239,7 @@ def admin_dashboard():
 @app.route('/admin/logout')
 def admin_logout():
     session.clear()
-    return redirect(url_for('register_login_admin'))
+    return redirect(url_for('select_user'))
 #------------------------------------------------------------------------------------------
 
 
@@ -290,7 +292,7 @@ def submit_announcement():
         flash('Announcement created successfully!')
         return redirect(url_for('announcements'))
     
-    
+
 @app.route('/edit-announcement/<int:id>', methods=['GET', 'POST'])
 def edit_announcement(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
