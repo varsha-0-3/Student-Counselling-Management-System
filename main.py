@@ -352,7 +352,9 @@ def add_meeting():
 
     return render_template('counsellor_dashboard.html')
 
-
+@app.route('/schedule_meetings')
+def schedule_meetings():
+    return render_template('schedule_meetings.html')
 
 @app.route('/view_meetings')
 def view_meetings():
