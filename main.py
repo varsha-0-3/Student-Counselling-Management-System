@@ -309,6 +309,7 @@ def delete_announcement(id):
     cursor.close()
     return redirect(url_for('announcements'))
 
+print("Mayur")
 
 
 
