@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+        * {
+            margin-top: 10px;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #aec9e6;;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .container .title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section .section-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #444;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .section .details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .details .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background-color: #b6f9e0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .details .detail-item input {
+            background-color: transparent;
+            border: none;
+            font-weight: 500;
+            text-align: right;
+            outline: none;
+            width: 100%;
+        }
+        .details .detail-item input[readonly] {
+            color: #6f8889;
+        }
+        .edit-button {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .edit-button input {
+            padding: 12px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #9b59b6;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .edit-button input:hover {
+            background-color: #7151b5;
+        }
+        .save-button {
+            display: none;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .save-button input {
+            padding: 12px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .save-button input:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">Student Profile</div>
+
+    <form id="profileForm" action="{{ url_for('update_profile') }}" method="POST">
+        <div class="section">
+            <div class="section-title">Personal Information</div>
+            <div class="details">
+                
+                <div class="detail-item"><span>Full Name:</span>{{ student['name'] }}</div>
+                <div class="detail-item"><span>Email:</span>{{ student['email_id'] }}</div>
+                <div class="detail-item"><span>Phone Number:</span><input type="text" name="phone_no" value="{{ student['phone_no'] }}" readonly></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Counselor Information</div>
+            <div class="details">
+                <div class="detail-item"><span>Counselor Name:</span>{{ student['c_name'] }}</div>
+                <div class="detail-item"><span>Counselor Email:</span>{{ student['c_email'] }}</div>
+                <div class="detail-item"><span>Counselor Contact:</span>{{ student['c_contact'] }}</div>
+                <div class="detail-item"><span>Batch Number:</span>{{ student['batch_no'] }}</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Parent Information</div>
+            <div class="details">
+                <div class="detail-item"><span>Parent Email:</span><input type="email" name="parent_email_id" value="{{ student['parent_email_id'] }}" readonly></div>
+                <div class="detail-item"><span>Parent Phone:</span><input type="text" name="parent_phone" value="{{ student['parent_phone'] }}" readonly></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Activity Points</div>
+            <div class="details">
+                <div class="detail-item"><span>Points:</span>{{ student['points'] }}</div>
+            </div>
+        </div>
+
+        <div class="edit-button">
+            <input type="button" value="Edit Profile" onclick="enableUpdate()">
+        </div>
+
+        <div class="save-button" id="saveButton">
+            <input type="submit" value="Save Changes">
+        </div>
+    </form>
+</div>
+
+<script>
+    function enableUpdate() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.type !== 'button' && input.type !== 'submit') {
+                input.removeAttribute('readonly');
+                input.style.backgroundColor = '#f1f1f1'; // Optional: Change background color to indicate edit mode
+            }
+        });
+        document.getElementById('saveButton').style.display = 'flex';
+    }
+</script>
+</body>
+</html>

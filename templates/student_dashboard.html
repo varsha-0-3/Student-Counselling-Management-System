@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Counselling Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <nav>
@@ -14,18 +16,64 @@
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#announcements">Announcements</a></li>
-                <li><a href="#contact">Contact</a></li>
             </ul>
             <div class="dropdown">
                 <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile">
                 <div class="dropdown-content">
                     <a href="{{ url_for('student_logout') }}">Sign Out</a>
-                    <a href="#viewprofile">View Profile</a>
+                    <a href="{{url_for('view_profile_student')}}">View Profile</a>
                     
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- Inside student_dashboard.html -->
+    <section id="view-meetings">
+    <div class="card-list">
+        <a href="{{ url_for('update_activity_points') }}" class="card-item">
+            <img src="../static/images/activity.png" alt="Card Image">
+            <span class="activity">Activity Points</span>
+            <h3>Ensure proper docs</h3>
+            <div class="arrow">
+                <i class="fas fa-arrow-right card-icon"></i>
+            </div>
+        </a>
+        
+
+        <a href="{{ url_for('view_academic_performance') }}" class="card-item">
+            <img src="../static/images/academic.png" alt="Card Image">
+            <span class="academy">Academic Report</span>
+            <h3>view Your academic performace</h3>
+            <div class="arrow">
+                <i class="fas fa-arrow-right card-icon"></i>
+            </div>
+        </a>
+
+        <a href="{{ url_for('upload_file') }}" class="card-item">
+
+            <img src="../static/images/documents.png" alt="Card Image">
+            <span class="meet">Documents</span>
+            <h3>Both Academic and Non-Academic documents to be uploaded</h3>
+            <div class="arrow">
+                <i class="fas fa-arrow-right card-icon"></i>
+            </div>
+        </a>
+        <a href="{{ url_for('student_view_meetings') }}" class="card-item">
+
+            <img src="../static/images/meeting.png" alt="Card Image">
+            <span class="meet">Meetings</span>
+            <h3>Meetings scheduled by your counselor</h3>
+            <div class="arrow">
+                <i class="fas fa-arrow-right card-icon"></i>
+            </div>
+        </a>
+        
+    
+    </div>
+    
+</section>
+
 
     
 
@@ -36,20 +84,6 @@
             <a href="mailto:isedepartment@rvce.edu.in" class="btn">Email Us</a>
         </div>
     </section>
-    <!-- Inside student_dashboard.html -->
-<section id="view-meetings">
-    <div class="container">
-        <div class="card">
-            <h3>View Scheduled Meetings</h3>
-            <p>Click here to view meetings scheduled by your counselor.</p>
-            <a href="{{ url_for('student_view_meetings') }}" class="btn">View Meetings</a>
-        </div>
-    </div>
-</section>
-
-
-    <a href="{{ url_for('update_activity_points') }}">Update Activity Points</a>
-
     <footer>
         <div class="container">
             <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
