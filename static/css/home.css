@@ -350,3 +350,53 @@ text-align: center; /* Center text within header */
 .delete-btn:hover {
     opacity: 0.8; /* Slightly fade on hover */
 }
+#schedule-meetings .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 0;
+}
+
+.card {
+    background-color: #f4f4f4;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    width: 500px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.card h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.card p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.card .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card .btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;  /* Add space between buttons */
+}
+
+.card .btn:hover {
+    background-color: #0056b3;
+}

@@ -36,6 +36,17 @@
             <a href="mailto:isedepartment@rvce.edu.in" class="btn">Email Us</a>
         </div>
     </section>
+    <!-- Inside student_dashboard.html -->
+<section id="view-meetings">
+    <div class="container">
+        <div class="card">
+            <h3>View Scheduled Meetings</h3>
+            <p>Click here to view meetings scheduled by your counselor.</p>
+            <a href="{{ url_for('student_view_meetings') }}" class="btn">View Meetings</a>
+        </div>
+    </div>
+</section>
+
 
     <a href="{{ url_for('update_activity_points') }}">Update Activity Points</a>
 

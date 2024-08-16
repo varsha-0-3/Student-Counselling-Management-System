@@ -37,7 +37,7 @@
                         <p class="message">Already registered? <a href="#" onclick="toggleForms('login')">Login</a></p>
                     </form>
                     <!-- Login Form -->
-                    <form id="login-form" class="login-form" action="{{ url_for('register_login_student') }}" method="POST">
+                    <form id="login-form-student" class="login-form" action="{{ url_for('register_login_student') }}" method="POST">
                         <h2 class="heading-text">Login</h2>
                         <input type="hidden" name="form_type" value="login">
                         <input type="text" name="usn" placeholder="USN" required />
@@ -72,16 +72,16 @@
         toggleForms(currentForm);
 
         // Handle form submission
-        document.getElementById('login-form').addEventListener('submit', handleFormSubmit);
+        document.getElementById('login-form-student').addEventListener('submit', handleFormSubmit);
         document.getElementById('register-form').addEventListener('submit', handleFormSubmit);
 
         // Toggle forms visibility
         function toggleForms(formType) {
             if (formType === 'register') {
-                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('login-form-student').classList.add('hidden');
                 document.getElementById('register-form').classList.remove('hidden');
             } else {
-                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('login-form-student').classList.remove('hidden');
                 document.getElementById('register-form').classList.add('hidden');
             }
             localStorage.setItem('formType', formType); // Save form state

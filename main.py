@@ -1,11 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session, make_response
 from flask_mysqldb import MySQL
 from werkzeug.utils import secure_filename
 import io
 import MySQLdb
 from datetime import datetime
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-import jinja2
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages and sessions
@@ -17,7 +15,6 @@ app.config['MYSQL_DB'] = 'scms'
 app.config['MYSQL_PORT'] = 10363
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
-
 mysql = MySQL(app)
 
 #--------So that the points(which has to appear in new lines) don't become paragraphs in announcements-------
@@ -28,12 +25,14 @@ def nl2br(value):
 
 @app.route('/select_user', methods=['GET', 'POST'])
 def select_user():
-    return render_template("user_selection.html")
+    response = make_response(render_template("user_selection.html"))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
     
 #---------------------------------------student-----------------------------------------------------
-@app.route("/student")
-def student_login():
-    return render_template("student_login_page.html")
+# @app.route("/student")
+# def student_login():
+#     return render_template("student_login_page.html")
 
 @app.route('/student/login', methods=['GET', 'POST'])
 def register_login_student():
@@ -56,6 +55,7 @@ def register_login_student():
                 return redirect(url_for('student_dashboard'))
             else:
                 flash('Invalid credentials')
+                return redirect(url_for('register_login_student') + '#')
         
         elif form_type == 'register':
             name = request.form['name']
@@ -82,6 +82,7 @@ def register_login_student():
                 return redirect(url_for('student_dashboard'))
             else:
                 flash('Passwords do not match')
+                
     
     return render_template('student_login_page.html')
 
@@ -90,7 +91,10 @@ def register_login_student():
 def student_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_student'))
-    return render_template('student_dashboard.html')
+
+    response = make_response(render_template('student_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/student/documents/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -148,13 +152,13 @@ def view_document(document_id):
 @app.route('/student/logout')
 def student_logout():
     session.clear()
-    return redirect(url_for('register_login_student'))
+    return redirect(url_for('select_user'))
 #------------------------------------------------------------
 
 #counsellor----------------------------------------------------------------------
-@app.route("/counsellor")
-def counsellor_login():
-    return render_template("counsellor_login_page.html")
+# @app.route("/counsellor")
+# def counsellor_login():
+#     return render_template("counsellor_login_page.html")
 
 
 @app.route('/counsellor/login', methods=['GET', 'POST'])
@@ -172,8 +176,7 @@ def register_login_counsellor():
         if user:
             session['logged_in'] = True
             session['name'] = c_name
-            session['c_id'] = user['c_id']
-            print(f"Logged in with c_id: {session['c_id']}")  # Debugging line, To be removed
+            session['counsellor_id'] = user['c_id']
             return redirect(url_for('counsellor_dashboard'))
         else:
             flash('Invalid credentials')
@@ -184,20 +187,23 @@ def register_login_counsellor():
 def counsellor_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_counsellor'))
-    return render_template('counsellor_dashboard.html')
+
+    response = make_response(render_template('counsellor_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/counsellor/logout')
 def counsellor_logout():
     session.clear()
-    return redirect(url_for('register_login_counsellor'))
+    return redirect(url_for('select_user'))
 #------------------------------------------------------------------------------------------
 
 
 
 #admin----------------------------------------------------------------------
-@app.route("/admin")
-def admin_login():
-    return render_template("admin_login_page.html")
+# @app.route("/admin")
+# def admin_login():
+#     return render_template("admin_login_page.html")
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -225,12 +231,15 @@ def register_login_admin():
 def admin_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_admin'))
-    return render_template('admin_dashboard.html')
+
+    response = make_response(render_template('admin_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @app.route('/admin/logout')
 def admin_logout():
     session.clear()
-    return redirect(url_for('register_login_admin'))
+    return redirect(url_for('select_user'))
 #------------------------------------------------------------------------------------------
 
 
@@ -242,7 +251,6 @@ def home():
     cursor.execute("SELECT * FROM announcements ORDER BY date DESC LIMIT 3")
     latest_announcements = cursor.fetchall()
     cursor.close()
-    print(latest_announcements) 
     return render_template('home.html', announcements=latest_announcements)
 
 
@@ -253,7 +261,7 @@ def allowed_file(filename):
 
 #-----------Announcements-----Start------------------------
 
-# route for Annoucements page
+# route for Announcements page
 @app.route('/announcements')
 def announcements():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -263,12 +271,12 @@ def announcements():
     return render_template('announcements.html', announcements=announcements)
 
 
-# route for creat-Annoucements page
+# route for create-Announcements page
 @app.route('/create-announcement')
 def create_announcements():
     return render_template('create-announcement.html')
 
-# After submitting the create annoucement form
+# After submitting the create announcement form
 @app.route('/submit-announcement', methods=['POST'])
 def submit_announcement():
     if request.method == 'POST':
@@ -276,15 +284,16 @@ def submit_announcement():
         content = request.form['content']
         link = request.form.get('link')
         author = "BK Srinivas"
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        date = datetime.now().strftime('%Y-%m-%d')
+        
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO announcements (author, date, title, content, link) VALUES (%s, %s, %s, %s, %s)''', (author, date, title, content, link))
+        cursor.execute('INSERT INTO announcements (title, content, link, author, date) VALUES (%s, %s, %s, %s, %s)', (title, content, link, author, date))
         mysql.connection.commit()
         cursor.close()
-
+        flash('Announcement created successfully!')
         return redirect(url_for('announcements'))
     
+
 @app.route('/edit-announcement/<int:id>', methods=['GET', 'POST'])
 def edit_announcement(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -381,6 +390,86 @@ def update_activity_points():
 
 
 #-----------Activity-points-----End------------------------
+# add the meeting to the database.
+@app.route('/add_meeting', methods=['POST'])
+def add_meeting():
+    if request.method == 'POST':
+        # Retrieve form data
+        date = request.form['date']
+        time_12hr = request.form['time']
+        link = request.form['link']
+        description = request.form.get('description', '')
+
+        # Retrieve counsellor_id from session
+        counsellor_id = session.get('counsellor_id')
+
+        # Convert 12-hour time format with AM/PM to 24-hour format
+        time_24hr = datetime.strptime(time_12hr, '%I:%M %p').strftime('%H:%M')
+
+        # Ensure the selected time is greater than the current time if it's the same day
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_time = datetime.now().strftime('%H:%M')
+
+        if date == current_date and time_24hr <= current_time:
+            flash('Error: The time must be greater than the current time for the same day.', 'danger')
+            return redirect(url_for('schedule_meetings'))
+
+        # Insert data into the 'meeting' table
+        cursor = mysql.connection.cursor()
+        try:
+            cursor.execute('''INSERT INTO meeting (date, time, link, description, counsellorid) 
+                              VALUES (%s, %s, %s, %s, %s)''',
+                           (date, time_24hr, link, description, counsellor_id))
+            mysql.connection.commit()
+            flash('Meeting scheduled successfully!', 'success')
+        except MySQLdb.Error as e:
+            mysql.connection.rollback()
+            flash(f'Error scheduling meeting: {e}', 'danger')
+        finally:
+            cursor.close()
+
+        return render_template('counsellor_dashboard.html')
+
+    return render_template('counsellor_dashboard.html')
+
+# schedule meetings html page will be rendered.
+@app.route('/schedule_meetings')
+def schedule_meetings():
+    return render_template('schedule_meetings.html')
+
+@app.route('/view_meetings')
+def view_meetings():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT date, time, link, description FROM meeting ORDER BY date, time ASC')
+    meetings = cursor.fetchall()
+    cursor.close()
+
+    return render_template('view_meetings.html', meetings=meetings)
+
+@app.route('/student/student_view_meetings')
+def student_view_meetings():
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_student'))
+
+    usn = session.get('usn')
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Query to join student and meeting tables and fetch relevant meetings
+    query = '''
+        SELECT m.date, m.time, m.link, m.description 
+        FROM student s
+        JOIN counsellor_student cs ON s.usn = cs.usn
+        JOIN meeting m ON cs.c_id = m.counsellorid
+        WHERE s.usn = %s
+        ORDER BY m.date, m.time ASC
+    '''
+    
+    cursor.execute(query, (usn,))
+    meetings = cursor.fetchall()
+    cursor.close()
+
+    return render_template('view_meetings.html', meetings=meetings)
 
 if __name__ == '__main__':
     app.run(debug=True)
