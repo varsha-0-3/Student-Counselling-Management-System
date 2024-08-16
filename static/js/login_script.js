@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function validatePassword(password) {
-        return password.length >= 4;
+        return password.length >= 3;
     }
 
     function validateConfirmPassword(cpassword, form) {

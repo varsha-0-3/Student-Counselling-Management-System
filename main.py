@@ -96,6 +96,84 @@ def student_dashboard():
     response.headers['Cache-Control'] = 'no-store'
     return response
 
+
+
+@app.route('/student/dashboard/profile')
+def view_profile_student():
+    if not session.get('logged_in'):
+        return redirect(url_for('student_login'))  # Redirect to login if not logged in
+
+    usn = session.get('usn')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Fetch the student's profile data
+    query = """
+    SELECT 
+        student.*,
+        counsellor.batch_no,
+        counsellor.c_name, 
+        counsellor.c_email, 
+        counsellor.c_contact,
+        activity_points.points, 
+        parents.parent_email_id, 
+        parents.parent_phone 
+    FROM student
+    LEFT JOIN counsellor_student ON student.usn = counsellor_student.usn
+    LEFT JOIN counsellor ON counsellor_student.c_id = counsellor.c_id
+    LEFT JOIN activity_points ON student.usn = activity_points.usn
+    LEFT JOIN parents ON student.usn = parents.usn
+    WHERE student.usn = %s
+    """
+    
+    cursor.execute(query, (usn,))
+    student = cursor.fetchone()
+    cursor.close()
+
+    if not student:
+        return "Student not found", 404
+
+    return render_template('student_profile.html', student=student)
+
+
+@app.route('/student/dashboard/update_profile', methods=['POST'])
+def update_profile():
+    if not session.get('logged_in'):
+        return redirect(url_for('student_login'))
+
+    usn = session.get('usn')
+    email_id = request.form['email_id']
+    phone_no = request.form['phone_no']
+    parent_email_id=request.form['parent_email_id'] 
+    parent_phone=request.form['parent_phone']
+
+    cursor = mysql.connection.cursor()
+
+    # Update student profile
+    update_query = """
+    UPDATE student 
+    SET parent_email_id = %s, email_id = %s, phone_no = %s, parent_phone = %s 
+    WHERE usn = %s
+    """
+    cursor.execute(update_query, (parent_email_id, email_id, phone_no, parent_phone, usn))
+
+    # Update parent details
+    update_parent_query = """
+    UPDATE parents
+    SET parent_email_id = %s, parent_phone = %s
+    WHERE usn = %s
+    """
+    cursor.execute(update_parent_query, (parent_email_id, parent_phone, usn))
+
+    mysql.connection.commit()
+    cursor.close()
+   
+
+    return redirect(url_for('view_profile_student'))
+
+
+
+
+
 @app.route('/student/documents/upload', methods=['GET', 'POST'])
 def upload_file():
     if not session.get('logged_in'):
@@ -331,7 +409,7 @@ def view_activity_points():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_counsellor'))
      
-    c_id = session.get('c_id')
+    c_id = session.get('counsellor_id')
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
      
     query = """
@@ -470,6 +548,12 @@ def student_view_meetings():
     cursor.close()
 
     return render_template('view_meetings.html', meetings=meetings)
+
+
+# -------------------------------acadmeic performace related-----------------------------------
+@app.route('/student/academic_report')
+def view_academic_performance():
+    return
 
 if __name__ == '__main__':
     app.run(debug=True)
