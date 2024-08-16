@@ -172,6 +172,8 @@ def register_login_counsellor():
         if user:
             session['logged_in'] = True
             session['name'] = c_name
+            session['c_id'] = user['c_id']
+            print(f"Logged in with c_id: {session['c_id']}")  # Debugging line, To be removed
             return redirect(url_for('counsellor_dashboard'))
         else:
             flash('Invalid credentials')
@@ -249,6 +251,7 @@ ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#-----------Announcements-----Start------------------------
 
 # route for Annoucements page
 @app.route('/announcements')
@@ -309,8 +312,75 @@ def delete_announcement(id):
     cursor.close()
     return redirect(url_for('announcements'))
 
+#-----------Announcements-----End------------------------
+
+#-----------Activity-points-----Start------------------------
+
+@app.route('/counsellor/view-activity-points')
+def view_activity_points():
+    print(f"Session data: {session}")  # Debugging line, To be removed
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+     
+    c_id = session.get('c_id')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+     
+    query = """
+    SELECT student.*
+    FROM student
+    INNER JOIN counsellor_student ON student.usn = counsellor_student.usn
+    WHERE counsellor_student.c_id = %s
+    """
+    cursor.execute(query, (c_id,))
+    students = cursor.fetchall()
+    cursor.close()
+
+    return render_template('view_activity_points.html', students=students)
+
+@app.route('/student/update-activity-points', methods=['GET', 'POST'])
+def update_activity_points():
+    if not session.get('logged_in'):
+        return redirect(url_for('student_login'))  # Redirect to login if not logged in
+
+    usn = session.get('usn')  # Assuming the user's USN is stored in the session
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Retrieve existing data for the student
+    query = """
+    SELECT points, drive_link FROM activity_points WHERE usn = %s
+    """
+    cursor.execute(query, (usn,))
+    data = cursor.fetchone()  # Fetch the existing data
+    cursor.close()
+
+    # Set default values if data is None (i.e., no entry found)
+    points = data['points'] if data else ''
+    drive_link = data['drive_link'] if data else ''
+
+    if request.method == 'POST':
+        points = request.form['points']
+        drive_link = request.form['drive_link']
+
+        # Update the activity_points table in the database
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        query = """
+        INSERT INTO activity_points (usn, points, drive_link)
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+        points = VALUES(points),
+        drive_link = VALUES(drive_link)
+        """
+        cursor.execute(query, (usn, points, drive_link))
+        mysql.connection.commit()
+        cursor.close()
+
+        flash('Activity points updated successfully!')
+        return redirect(url_for('student_dashboard'))  # Redirect to the student dashboard or another page
+
+    return render_template('update_activity_points.html', points=points, drive_link=drive_link)
 
 
+#-----------Activity-points-----End------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
