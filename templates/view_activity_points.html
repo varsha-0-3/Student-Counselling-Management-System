@@ -46,9 +46,9 @@
                                 Activity points gained: {{ student.points }}
                             </h3>
                             <p class="inside-page__text">
-                                Find the relevant information about the student's Activity points.
+                                Find the relevant documents for the student's Activity points here.
                             </p>
-                            <a href="#" class="inside-page__btn inside-page__btn">View details</a>
+                            <a href="{{student.drive_link if student.drive_link else url_for('view_activity_points')}}" class="inside-page__btn inside-page__btn">{{ "View details" if student.drive_link else "Not available" }}</a>
                         </div>
                     </div>
                 </div>
@@ -56,9 +56,9 @@
             {% endfor %}
 
         </section>
-        <footer class="footer">
+        <!-- <footer class="footer">
             
-        </footer>
+        </footer> -->
     </main>
 </body>
 </html>

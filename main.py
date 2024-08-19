@@ -413,15 +413,17 @@ def view_activity_points():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
      
     query = """
-    SELECT student.*
+    SELECT student.*, activity_points.*
     FROM student
     INNER JOIN counsellor_student ON student.usn = counsellor_student.usn
+    LEFT JOIN activity_points ON student.usn = activity_points.usn
     WHERE counsellor_student.c_id = %s
     """
     cursor.execute(query, (c_id,))
     students = cursor.fetchall()
     cursor.close()
-
+    for student in students:
+        print(f"Student points: {student}")
     return render_template('view_activity_points.html', students=students)
 
 @app.route('/student/update-activity-points', methods=['GET', 'POST'])
@@ -466,8 +468,8 @@ def update_activity_points():
 
     return render_template('update_activity_points.html', points=points, drive_link=drive_link)
 
-
 #-----------Activity-points-----End------------------------
+
 # add the meeting to the database.
 @app.route('/add_meeting', methods=['POST'])
 def add_meeting():
