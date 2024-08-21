@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Counselling Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <nav>
         <div class="container">
-            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo" alt="RVCE Logo">
             <ul>
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#features">Features</a></li>
@@ -19,29 +20,53 @@
                 <li><a href="#contact">Contact</a></li>
             </ul>
             <div class="dropdown">
-                <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile">
+                <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile" alt="Profile">
                 <div class="dropdown-content">
                     <a href="{{ url_for('counsellor_logout') }}">Sign Out</a>
-                    <a href="#viewprofile">View Profile</a>
-                    
                 </div>
             </div>
         </div>
     </nav>
 
-    
+    <section id="view-meetings">
+        <div class="card-list">
+            <a href="{{ url_for('schedule_meetings') }}" class="card-item">
+                <img src="../static/images/meeting.png" alt="Schedule Meetings">
+                <span class="feature">Schedule Meetings</span>
+                <h3>Click here to schedule your meetings with students.</h3>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right card-icon"></i>
+                </div>
+            </a>
 
-    <section id="schedule-meetings">
-        <div class="container">
-            <div class="card">
-                <h3>Schedule Meetings</h3>
-                <p>Click here to schedule your meetings with students.</p>
-                <a href="{{ url_for('schedule_meetings') }}" class="btn">Go to Scheduler</a>
-                <a href="{{ url_for('view_meetings') }}" class="btn btn-view">View Scheduled Meetings</a>
-            </div>
+            <a href="{{ url_for('students_documents') }}" class="card-item">
+                <img src="../static/images/documents.png" alt="Student Documents">
+                <span class="feature">See Student Docs</span>
+                <h3>View and manage student documents.</h3>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right card-icon"></i>
+                </div>
+            </a>
+
+            <a href="{{ url_for('view_activity_points') }}" class="card-item">
+                <img src="../static/images/activity.png" alt="Activity Points">
+                <span class="feature">View Activity Points</span>
+                <h3>Review the activity points for students.</h3>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right card-icon"></i>
+                </div>
+            </a>
+            <a href="{{ url_for('view_meetings') }}" class="card-item">
+                <img src="../static/images/meeting.png" alt="View Meetings">
+                <span class="feature">View Scheduled Meetings</span>
+                <h3>Check all your scheduled meetings with students.</h3>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right card-icon"></i>
+                </div>
+            </a>
         </div>
     </section>
-    
+
     <section id="contact">
         <div class="container">
             <h2>Contact Us</h2>
@@ -49,8 +74,6 @@
             <a href="mailto:isedepartment@rvce.edu.in" class="btn">Email Us</a>
         </div>
     </section>
-
-    <a href="{{ url_for('view_activity_points') }}">View Activity Points</a>
 
     <footer>
         <div class="container">

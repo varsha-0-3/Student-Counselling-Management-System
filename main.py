@@ -172,13 +172,16 @@ def update_profile():
 
 
 
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'}
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/student/documents/upload', methods=['GET', 'POST'])
 def upload_file():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_student'))
-    
+
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
@@ -189,43 +192,77 @@ def upload_file():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if not allowed_file(file.filename):
-            flash('Invalid file type')
-            return redirect(request.url)
         
-        if file:
+        if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_data = file.read()
-            student_name = request.form['student_name']
-            
+            usn = request.form['usn']
+            document_type_id = int(request.form['document_type_id'])
+            semester = int(request.form['semester'])
+            upload_date = datetime.now()
+
             cursor = mysql.connection.cursor()
-            cursor.execute('INSERT INTO documents (student_name, filename, file_data) VALUES (%s, %s, %s)', (student_name, filename, file_data))
+            cursor.execute(
+                'INSERT INTO student_documents (usn, document_type_id, document_name, file_data, folder_url, semester, upload_date) '
+                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (usn, document_type_id, filename, file_data, None, semester, upload_date)
+            )
             mysql.connection.commit()
             cursor.close()
-            
+
             flash('File successfully uploaded')
             return redirect(url_for('upload_file'))
     
-    return render_template('student_uploads.html')
+    # Fetch document types to display in the form
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT document_type_id, document_type_name FROM document_types')
+    document_types = cursor.fetchall()
+    cursor.close()
+
+    return render_template('student_uploads.html', document_types=document_types)
+
+
+
+@app.route('/student/documents/view_all/<string:usn>')
+def view_all_documents(usn):
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_student'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute('''
+        SELECT sd.id, sd.document_name, dt.document_type_name, sd.semester, sd.upload_date 
+        FROM student_documents sd
+        JOIN document_types dt ON sd.document_type_id = dt.document_type_id
+        WHERE sd.usn = %s
+    ''', (usn,))
+    documents = cursor.fetchall()
+    cursor.close()
+
+    if documents:
+        return render_template('view_documents.html', usn=usn, documents=documents)
+    else:
+        flash('No documents found for this student.')
+        return redirect(url_for('upload_file'))
 
 @app.route('/student/documents/view_document/<int:document_id>')
 def view_document(document_id):
     if not session.get('logged_in'):
         return redirect(url_for('register_login_student'))
-    
+
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT filename, file_data FROM documents WHERE id = %s', (document_id,))
+    cursor.execute('SELECT document_name, file_data FROM student_documents WHERE id = %s', (document_id,))
     document = cursor.fetchone()
     cursor.close()
-    
+
     if document:
         file_data = document['file_data']
-        filename = document['filename']
+        document_name = document['document_name']
         
-        return send_file(io.BytesIO(file_data), download_name=filename, as_attachment=False)
+        return send_file(io.BytesIO(file_data), download_name=document_name, as_attachment=False)
     else:
-        return 'File not found'
-    
+        flash('File not found')
+        return redirect(url_for('view_all_documents', usn=session.get('usn')))
+
 
 @app.route('/student/logout')
 def student_logout():
@@ -269,6 +306,36 @@ def counsellor_dashboard():
     response = make_response(render_template('counsellor_dashboard.html'))
     response.headers['Cache-Control'] = 'no-store'
     return response
+
+@app.route('/counsellor/view_all_student_documents', methods=['GET', 'POST'])
+def students_documents():
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+
+    usn = None
+    documents = []
+
+    if request.method == 'POST':
+        usn = request.form['usn']
+
+        if usn:
+            cursor = mysql.connection.cursor()
+            cursor.execute('''
+                SELECT sd.id, sd.document_name, dt.document_type_name, sd.semester, sd.upload_date 
+                FROM student_documents sd
+                JOIN document_types dt ON sd.document_type_id = dt.document_type_id
+                WHERE sd.usn = %s
+            ''', (usn,))
+            documents = cursor.fetchall()
+            cursor.close()
+
+            if not documents:
+                flash('No documents found for this USN.')
+
+    return render_template('view_student_documents.html', usn=usn, documents=documents)
+
+    
+    
 
 @app.route('/counsellor/logout')
 def counsellor_logout():
@@ -332,10 +399,7 @@ def home():
     return render_template('home.html', announcements=latest_announcements)
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #-----------Announcements-----Start------------------------
 
