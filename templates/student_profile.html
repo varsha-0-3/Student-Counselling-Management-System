@@ -119,7 +119,11 @@
             <div class="details">
                 
                 <div class="detail-item"><span>Full Name:</span>{{ student['name'] }}</div>
-                <div class="detail-item"><span>Email:</span>{{ student['email_id'] }}</div>
+                <div class="detail-item">
+                    <span>Email:</span>
+                    <input type="email" name="email_id" value="{{ student['email_id'] }}" required>
+                </div>
+                
                 <div class="detail-item"><span>Phone Number:</span><input type="text" name="phone_no" value="{{ student['phone_no'] }}" readonly></div>
             </div>
         </div>

@@ -139,22 +139,21 @@ def view_profile_student():
 def update_profile():
     if not session.get('logged_in'):
         return redirect(url_for('student_login'))
-
     usn = session.get('usn')
-    email_id = request.form['email_id']
-    phone_no = request.form['phone_no']
-    parent_email_id=request.form['parent_email_id'] 
-    parent_phone=request.form['parent_phone']
+    email_id = request.form.get('email_id', '')
+    phone_no = request.form.get('phone_no', '')
+    parent_email_id = request.form.get('parent_email_id', '')
+    parent_phone = request.form.get('parent_phone', '')
 
     cursor = mysql.connection.cursor()
 
     # Update student profile
     update_query = """
     UPDATE student 
-    SET parent_email_id = %s, email_id = %s, phone_no = %s, parent_phone = %s 
+    SET email_id = %s, phone_no = %s
     WHERE usn = %s
     """
-    cursor.execute(update_query, (parent_email_id, email_id, phone_no, parent_phone, usn))
+    cursor.execute(update_query, ( email_id, phone_no,usn))
 
     # Update parent details
     update_parent_query = """
