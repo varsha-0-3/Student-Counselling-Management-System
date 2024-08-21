@@ -67,36 +67,11 @@
    
     <section id="announcements">
         <div class="container">
-            <div class="latest-announcements-header">
-                <h2>Latest Announcements</h2>
-                <!-- Use Font Awesome icon -->
-                <i class="fas fa-bullhorn"style="color: #003366; position: relative; left: 10px; top: -10px"></i>
+            <div class="feature">
+                <h3>Important Announcement</h3>
+                <p>Stay tuned for important updates and announcements.</p>
+                <a href="{{ url_for('select_user') }}" class="btn">View Announcements</a>
             </div>
-            {% if announcements %}
-                {% for announcement in announcements %}
-                <div class="announcement" id="announcement-{{ loop.index }}">
-                    <div class="announcement-actions">
-                        <a href="{{ url_for('edit_announcement', id=announcement.id) }}" class="edit-btn">Edit</a>
-                        <a href="{{ url_for('delete_announcement', id=announcement.id) }}" class="delete-btn" onclick="return confirm('Are you sure you want to delete this announcement?');">Delete</a>
-                    </div>
-                    <div class="meta">
-                        <time datetime="{{ announcement.date }}">{{ announcement.date }}</time><br>
-                        <span class="author"><strong>Announced by: {{ announcement.author }}</strong></span>
-                    </div>
-                    <h3><i class="icon">&#9733;</i>{{ announcement.title }}</h3>
-                    <p>{{ announcement.content | nl2br | safe }}</p>
-
-                    {% if announcement.link %}
-                    <p><strong>Related Link:</strong> <a href="{{ announcement.link }}" target="_blank">{{ announcement.link }}</a></p>
-                    {% endif %}
-                </div>
-                {% endfor %}
-                <div class="view-more">
-                    <a href="{{ url_for('announcements') }}">View More Announcements</a>
-                </div>
-            {% else %}
-                <p>No announcements available.</p>
-            {% endif %}
         </div>
     </section>
 

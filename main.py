@@ -403,14 +403,53 @@ def home():
 
 #-----------Announcements-----Start------------------------
 
-# route for Announcements page
+# route for Announcements page - For Faculty view
 @app.route('/announcements')
 def announcements():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM announcements ORDER BY date DESC')
+    # Retrieve announcements where author matches the session's name
+    query = 'SELECT * FROM announcements WHERE author = %s ORDER BY date DESC'
+    cursor.execute(query, (session['name'],))
     announcements = cursor.fetchall()
     cursor.close()
     return render_template('announcements.html', announcements=announcements)
+
+# route for Announcements page - For Student view
+@app.route('/student_announcements')
+def student_announcements():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Get the student's USN from the session
+    usn = session['usn']
+    
+    # Find the counsellor assigned to the student
+    query = '''
+        SELECT c.c_name
+        FROM counsellor_student cs
+        JOIN counsellor c ON cs.c_id = c.c_id
+        WHERE cs.usn = %s
+    '''
+    cursor.execute(query, (usn,))
+    counsellor = cursor.fetchone()
+    
+    if counsellor:
+        counsellor_name = counsellor['c_name']
+        
+        # Retrieve announcements made by the counsellor
+        query = '''
+            SELECT * 
+            FROM announcements
+            WHERE author = %s
+            ORDER BY date DESC
+        '''
+        cursor.execute(query, (counsellor_name,))
+        announcements = cursor.fetchall()
+    else:
+        announcements = []
+    
+    cursor.close()
+    return render_template('student_announcements.html', announcements=announcements)
+
 
 
 # route for create-Announcements page
@@ -425,8 +464,8 @@ def submit_announcement():
         title = request.form['title']
         content = request.form['content']
         link = request.form.get('link')
-        author = "BK Srinivas"
-        date = datetime.now().strftime('%Y-%m-%d')
+        author = session.get('name')
+        date = datetime.now().strftime('%Y-%m-%d %H:%M')
         
         cursor = mysql.connection.cursor()
         cursor.execute('INSERT INTO announcements (title, content, link, author, date) VALUES (%s, %s, %s, %s, %s)', (title, content, link, author, date))

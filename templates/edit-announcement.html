@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Announcement</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/announcements.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="static/css/home.css">
-    <link rel="stylesheet" href="static/css/announcements.css">
     <style>
         body {
-        font-family: 'Arial', sans-serif;
-        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../static/images/college.png'); /* Adjust path if necessary */
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        background-color: #f4f4f4; /* Fallback color */
+            font-family: 'Arial', sans-serif;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../static/images/college.png');
+            background-size: contain; /* Adjusts image to fit within element boundaries */
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #f4f4f4; /* Fallback color */
         }
+
         .form-container {
             position: absolute;
             top: 50%;
@@ -95,17 +98,19 @@
 <body>
     <nav>
         <div class="container">
-            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo" alt="RVCE Logo">
             <ul>
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#announcements">Announcements</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <a href="/select_user" style="display: inline-block; padding: 0.7rem 1.5rem; background: #f0a500; color: #fff; text-decoration: none; font-size: 1rem; border-radius: 5px; transition: background 0.3s; cursor: pointer;">
-                Select User
-            </a>
-            
+            <div class="dropdown">
+                <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile" alt="Profile">
+                <div class="dropdown-content">
+                    <a href="{{ url_for('counsellor_logout') }}">Sign Out</a>
+                </div>
+            </div>
         </div>
     </nav>
     <header>
