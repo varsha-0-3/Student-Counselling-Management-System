@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Student Documents</title>
+    <title>View Student Documents</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -18,7 +18,7 @@
             height: 100vh;
         }
         .container {
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             margin: 20px;
         }
@@ -45,7 +45,6 @@
             color: #555;
         }
         .form-group input, 
-        .form-group select, 
         .form-group button {
             width: 100%;
             padding: 10px;
@@ -53,9 +52,6 @@
             border: 1px solid #ddd;
             font-size: 16px;
             color: #333;
-        }
-        .form-group input[type="file"] {
-            padding: 3px;
         }
         .form-group button {
             background-color: #007bff;
@@ -71,43 +67,67 @@
             color: #d9534f;
             text-align: center;
         }
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
+        .document-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .document-table th, .document-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .document-table th {
+            background-color: #f4f4f4;
+        }
+        .document-table td a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .document-table td a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <h2>Upload Student Documents</h2>
-            <form method="POST" enctype="multipart/form-data">
+            <h2>View Student Documents</h2>
+            <form method="POST">
                 <div class="form-group">
                     <label for="usn">USN</label>
-                    <input type="text" name="usn" id="usn" placeholder="Enter Student USN" required>
+                    <input type="text" name="usn" id="usn" placeholder="Enter Student USN" value="{{ usn }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="document_type_id">Document Type</label>
-                    <select name="document_type_id" id="document_type_id" required>
-                        {% for doc_type in document_types %}
-                        <option value="{{ doc_type['document_type_id'] }}">{{ doc_type['document_type_name'] }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="semester">Semester</label>
-                    <input type="number" name="semester" id="semester" placeholder="Enter Semester (1-8)" min="1" max="8" required>
-                </div>
-                <div class="form-group">
-                    <label for="file">Choose File</label>
-                    <input type="file" name="file" id="file" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit"><i class="fas fa-upload"></i> Upload</button>
-                    <a href="#" id="view-documents-btn" class="button"><i class="fas fa-eye"></i> View Documents</a>
+                    <button type="submit"><i class="fas fa-search"></i> Search Documents</button>
                 </div>
             </form>
-            
+
+            {% if documents %}
+            <table class="document-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Document Type</th>
+                        <th>Semester</th>
+                        <th>Upload Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td>{{ doc['document_name'] }}</td>
+                        <td>{{ doc['document_type_name'] }}</td>
+                        <td>{{ doc['semester'] }}</td>
+                        <td>{{ doc['upload_date'] }}</td>
+                        <td><a href="{{ url_for('view_document', document_id=doc['id']) }}">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="flash-messages">
@@ -121,17 +141,5 @@
             {% endwith %}
         </div>
     </div>
-
-    <script>
-        document.getElementById('view-documents-btn').addEventListener('click', function(event) {
-            event.preventDefault();
-            var usn = document.getElementById('usn').value;
-            if (usn) {
-                window.location.href = '/student/documents/view_all/' + usn;
-            } else {
-                alert('Please enter USN to view documents.');
-            }
-        });
-    </script>
 </body>
 </html>
