@@ -5,35 +5,192 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Counselling Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ef7474;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        .form-container input, .form-container button, .form-container select {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .toggle-btn {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .toggle-btn:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .search-input {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
     <nav>
         <div class="container">
             <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
-            <ul>
-                <li><a href="#about">About Us</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#announcements">Announcements</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
             <div class="dropdown">
                 <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile">
                 <div class="dropdown-content">
-                    <a href="{{ url_for( 'admin_logout') }}">Sign Out</a>
-                    <a href="#viewprofile">View Profile</a>
-                    
+                    <a href="{{ url_for('admin_logout') }}">Sign Out</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    
+    <section class="container">
+        <h2>Manage Counsellor-Student Relationships</h2>
+        <div class="form-container">
+            <form action="{{ url_for('manage_counsellor_student') }}" method="POST">
+                <label for="c_id">Counsellor ID:</label>
+                <input type="number" id="c_id" name="c_id" required>
+        
+                <label for="usn">Student USN:</label>
+                <input type="text" id="usn" name="usn" required>
+        
+                <button type="submit">Save Relationship</button>
+            </form>
+        </div>
 
-    <section id="contact">
-        <div class="container">
-            <h2>Contact Us</h2>
-            <p>If you have any questions, feel free to reach out to us.</p>
-            <a href="mailto:isedepartment@rvce.edu.in" class="btn">Email Us</a>
+        <button class="toggle-btn" onclick="toggleTable('relationshipTable')">Show/Hide Relationships</button>
+        
+        <div id="relationship">
+            <h3>Existing Relationships</h3>
+            <input type="text" id="relationshipSearch" class="search-input" onkeyup="searchTable('relationshipTable', 'relationshipSearch')" placeholder="Search for relationships...">
+            <table id="relationshipTable" class="hidden">
+                <thead>
+                    <tr>
+                        <th>Relationship ID</th>
+                        <th>Counsellor ID</th>
+                        <th>Student USN</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for relationship in relationships %}
+                    <tr>
+                        <form action="{{ url_for('update_relationship') }}" method="POST">
+                            <input type="hidden" name="relationship_id" value="{{ relationship.relationship_id }}">
+                            <td>{{ relationship.relationship_id }}</td>
+                            <td>
+                                <input type="number" name="c_id" value="{{ relationship.c_id }}" required>
+                            </td>
+                            <td>
+                                {{ relationship.usn }}
+                            </td>
+                            <td>
+                                <button type="submit">Update</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+    <section class="container">
+        <h2>Manage Student Performance</h2>
+        <div class="form-container">
+            <form action="{{ url_for('manage_performance') }}" method="POST">
+                <label for="usn">Student USN:</label>
+                <input type="text" id="usn" name="usn" required>
+    
+                <label for="course_id">Course:</label>
+                <select id="course_id" name="course_id" required>
+                    {% for course in courses %}
+                    <option value="{{ course.course_id }}">{{ course.course_name }}</option>
+                    {% endfor %}
+                </select>
+    
+                <label for="total_classes">Total Classes:</label>
+                <input type="number" id="total_classes" name="total_classes" required>
+    
+                <label for="attendance">Attendance:</label>
+                <input type="number" id="attendance" name="attendance" required>
+    
+                <label for="course_marks">Course Marks:</label>
+                <input type="number" id="course_marks" name="course_marks" required>
+    
+                <label for="cgpa">CGPA:</label>
+                <input type="number" step="0.01" id="cgpa" name="cgpa" required>
+    
+                <button type="submit">Save Performance</button>
+            </form>
+        </div>
+    
+        <button class="toggle-btn" onclick="toggleTable('performanceTable')">Show/Hide Performance Data</button>
+    
+        <div id="performanceTableDiv" class="hidden">
+            <h3>Existing Performance Data</h3>
+            <input type="text" id="performanceSearch" class="search-input" onkeyup="searchTable('performanceTable', 'performanceSearch')" placeholder="Search for performance data...">
+            <table id="performanceTable">
+                <thead>
+                    <tr>
+                        <th>USN</th>
+                        <th>Course</th>
+                        <th>Total Classes</th>
+                        <th>Attendance</th>
+                        <th>Course Marks</th>
+                        <th>CGPA</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in performance_data %}
+                    <tr>
+                        <form action="{{ url_for('update_performance') }}" method="POST">
+                            <input type="hidden" name="usn" value="{{ data.usn }}">
+                            <td>{{ data.usn }}</td>
+                            <td>
+                                <select name="course_id" required>
+                                    {% for course in courses %}
+                                    <option value="{{ course.course_id }}" {% if course.course_id == data.course_id %}selected{% endif %}>{{ course.course_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td><input type="number" name="total_classes" value="{{ data.total_classes }}" required></td>
+                            <td><input type="number" name="attendance" value="{{ data.attendance }}" required></td>
+                            <td><input type="number" name="course_marks" value="{{ data.course_marks }}" required></td>
+                            <td><input type="number" step="0.01" name="cgpa" value="{{ data.cgpa }}" required></td>
+                            <td><button type="submit">Update</button></td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </section>
 
@@ -42,5 +199,39 @@
             <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        function toggleTable(tableId) {
+            var table = document.getElementById(tableId);
+            if (table.classList.contains('hidden')) {
+                table.classList.remove('hidden');
+            } else {
+                table.classList.add('hidden');
+            }
+        }
+
+        function searchTable(tableId, searchInputId) {
+    var input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById(searchInputId);
+    filter = input.value.toUpperCase();
+    table = document.getElementById(tableId);
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 1; i < tr.length; i++) { // Skip the table header
+        tr[i].style.display = "none";
+        td = tr[i].getElementsByTagName("td");
+        for (j = 0; j < td.length; j++) {
+            if (j === 2) { // Assuming USN is in the 3rd column (index 2)
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                    break;
+                }
+            }
+        }
+    }
+}
+
+    </script>
 </body>
 </html>
