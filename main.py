@@ -333,8 +333,54 @@ def students_documents():
 
     return render_template('view_student_documents.html', usn=usn, documents=documents)
 
-    
-    
+@app.route('/counsellor/batch_students')
+def view_batch_students():
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+
+    c_id = session.get('counsellor_id')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    query = """
+    SELECT student.* FROM student
+    INNER JOIN counsellor_student ON student.usn = counsellor_student.usn
+    WHERE counsellor_student.c_id = %s
+    """
+    cursor.execute(query, (c_id,))
+    students = cursor.fetchall()
+    cursor.close()
+    return render_template('view_batch_students.html', students=students)
+
+@app.route('/view_student_profile/<usn>')
+def view_student_profile(usn):
+    if not session.get('logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+    c_id = session.get('counsellor_id')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    query = """
+            SELECT 
+                student.*,
+                counsellor.batch_no,
+                counsellor.c_name, 
+                counsellor.c_email, 
+                counsellor.c_contact,
+                activity_points.points, 
+                parents.parent_email_id, 
+                parents.parent_phone 
+            FROM student
+            LEFT JOIN counsellor_student ON student.usn = counsellor_student.usn
+            LEFT JOIN counsellor ON counsellor_student.c_id = counsellor.c_id
+            LEFT JOIN activity_points ON student.usn = activity_points.usn
+            LEFT JOIN parents ON student.usn = parents.usn
+            WHERE student.usn = %s
+    """
+    cursor.execute(query, (usn,))
+    result = cursor.fetchone()
+    cursor.close()
+    # Render the profile page with the student data
+    return render_template('view_student_profile.html', student=result)
+
 
 @app.route('/counsellor/logout')
 def counsellor_logout():
@@ -385,8 +431,6 @@ def admin_logout():
     session.clear()
     return redirect(url_for('select_user'))
 #------------------------------------------------------------------------------------------
-
-
 
 @app.route("/")
 @app.route("/home")
