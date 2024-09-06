@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_student_profile.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>{{ student.name }}</h1>
+        </header>
+        <section class="profile-card">
+            <p><strong>USN:</strong> {{ student.usn }}</p>
+            <p><strong>Email:</strong> {{ student.email_id }}
+                <a href="mailto:{{ student.email_id }}" class="email-button">Email</a>
+            </p>
+            <p><strong>Phone:</strong> {{ student.phone_number }}</p>
+            
+            <h3>Counsellor Details</h3>
+            <p><strong>Name:</strong> {{ student.c_name }}</p>
+            <p><strong>Email:</strong> {{ student.c_email }}</p>
+            <p><strong>Contact:</strong> {{ student.c_contact }}</p>
+            <p><strong>Batch No:</strong> {{ student.batch_no }}</p>
+
+            <h3>Activity Points</h3>
+            <p><strong>Points:</strong> {{ student.points }}</p>
+
+            <h3>Parent Details</h3>
+            <p><strong>Email:</strong> {{ student.parent_email_id }}
+                <a href="mailto:{{ student.parent_email_id }}" class="email-button">Email</a>
+            </p>
+            <p><strong>Phone:</strong> {{ student.parent_phone }}</p>
+        </section>
+    </div>
+
+</body>
+</html>

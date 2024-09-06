@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Counselling Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_batch_students.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo" alt="RVCE Logo">
+            <ul>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#announcements">Announcements</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="dropdown">
+                <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile" alt="Profile">
+                <div class="dropdown-content">
+                    <a href="{{ url_for('counsellor_logout') }}">Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-contain">
+        {% for student in students %}
+        <a href="{{ url_for('view_student_profile', usn=student.usn) }}" class="data-card">          <h3>{{student.usn}}</h3>
+          <h4>{{student.name}}</h4>
+          <span class="link-text"> View details
+            <svg width="22" height="10" viewBox="0 0 25 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M17.8631 0.929124L24.2271 7.29308C24.6176 7.68361 24.6176 8.31677 24.2271 8.7073L17.8631 15.0713C17.4726 15.4618 16.8394 15.4618 16.4489 15.0713C16.0584 14.6807 16.0584 14.0476 16.4489 13.657L21.1058 9.00019H0.47998V7.00019H21.1058L16.4489 2.34334C16.0584 1.95281 16.0584 1.31965 16.4489 0.929124C16.8394 0.538599 17.4726 0.538599 17.8631 0.929124Z" fill="#753BBD"/>
+      </svg>
+          </span>
+        </a>
+        {% endfor %}
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
