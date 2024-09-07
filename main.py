@@ -416,15 +416,152 @@ def register_login_admin():
             flash('Invalid credentials')
     
     return render_template('admin_login_page.html')
-
-@app.route('/admin/dashboard')
+@app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('register_login_admin'))
 
-    response = make_response(render_template('admin_dashboard.html'))
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Logic to handle different POST operations
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        # Handle Counsellor-Student Relationship Management
+        if action == 'manage_counsellor_student':
+            c_id = request.form['c_id']
+            usn = request.form['usn']
+            
+            # Check if the relationship already exists
+            cursor.execute('''
+                SELECT 1 FROM counsellor_student WHERE c_id = %s AND usn = %s
+            ''', (c_id, usn))
+            existing_relationship = cursor.fetchone()
+            
+            if not existing_relationship:
+                # Insert only if the relationship does not exist
+                cursor.execute('''
+                    INSERT INTO counsellor_student (c_id, usn) 
+                    VALUES (%s, %s)
+                ''', (c_id, usn))
+                mysql.connection.commit()
+
+        # Handle Counsellor-Student Relationship Update
+        elif action == 'update_relationship':
+            relationship_id = request.form['relationship_id']
+            c_id = request.form['c_id']
+            
+            try:
+                # Update the counsellor-student relationship
+                cursor.execute('''
+                    UPDATE counsellor_student 
+                    SET c_id = %s
+                    WHERE relationship_id = %s
+                ''', (c_id, relationship_id))
+                mysql.connection.commit()
+            except Exception as e:
+                print(f"Error updating relationship: {e}")
+                mysql.connection.rollback()
+
+        # Handle Performance Data Management
+        elif action == 'manage_performance':
+            usn = request.form['usn']
+            course_id = request.form['course_id']
+            total_classes = request.form['total_classes']
+            attendance = request.form['attendance']
+            course_marks = request.form['course_marks']
+            cgpa = request.form['cgpa']
+            
+            try:
+                # Insert new or update existing performance record
+                cursor.execute('''
+                    INSERT INTO course_performance (usn, course_id, total_classes, attendance, course_marks)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        total_classes = VALUES(total_classes),
+                        attendance = VALUES(attendance),
+                        course_marks = VALUES(course_marks)
+                ''', (usn, course_id, total_classes, attendance, course_marks))
+
+                # Update CGPA
+                cursor.execute('''
+                    INSERT INTO student_performance (usn, overall_cgpa)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        overall_cgpa = VALUES(overall_cgpa)
+                ''', (usn, cgpa))
+                
+                mysql.connection.commit()
+            except Exception as e:
+                print(f"Error updating performance data: {e}")
+                mysql.connection.rollback()
+
+        # Handle Performance Data Update
+        elif action == 'update_performance':
+            usn = request.form['usn']
+            course_id = request.form['course_id']
+            total_classes = request.form['total_classes']
+            attendance = request.form['attendance']
+            course_marks = request.form['course_marks']
+            cgpa = request.form['cgpa']
+
+            try:
+                # Convert CGPA to float
+                cgpa = float(cgpa)  # Ensure cgpa is numeric
+                
+                # Update course performance
+                cursor.execute('''
+                    UPDATE course_performance
+                    SET total_classes = %s,
+                        attendance = %s,
+                        course_marks = %s
+                    WHERE usn = %s AND course_id = %s
+                ''', (total_classes, attendance, course_marks, usn, course_id))
+
+                # Update CGPA
+                cursor.execute('''
+                    UPDATE student_performance
+                    SET overall_cgpa = %s
+                    WHERE usn = %s
+                ''', (cgpa, usn))
+                
+                mysql.connection.commit()
+            except ValueError:
+                print("Invalid CGPA value, must be a number.")
+                return "Error: CGPA must be a valid number.", 400
+            except Exception as e:
+                print(f"Error updating performance: {e}")
+                mysql.connection.rollback()
+
+
+    # Fetch data to render on the page (both GET and POST requests)
+    cursor.execute('SELECT relationship_id, c_id, usn FROM counsellor_student')
+    relationships = cursor.fetchall()
+
+    cursor.execute('''
+        SELECT cp.usn, c.course_name, cp.total_classes, cp.attendance, cp.course_marks, 
+               COALESCE(sp.overall_cgpa, 0) AS overall_cgpa
+        FROM course_performance cp
+        LEFT JOIN student_performance sp ON TRIM(cp.usn) = TRIM(sp.usn)
+        LEFT JOIN course c ON cp.course_id = c.course_id
+    ''')
+    performance_data = cursor.fetchall()
+
+    cursor.execute('SELECT * FROM course')
+    courses = cursor.fetchall()
+
+    cursor.close()
+
+    response = make_response(render_template(
+        'admin_dashboard.html',
+        relationships=relationships,
+        performance_data=performance_data,
+        courses=courses
+    ))
     response.headers['Cache-Control'] = 'no-store'
     return response
+
+
 
 @app.route('/admin/logout')
 def admin_logout():
@@ -702,122 +839,6 @@ def student_view_meetings():
 @app.route('/student/academic_report')
 def view_academic_performance():
     return
-
-@app.route('/manage_counsellor_student', methods=['GET', 'POST'])
-def manage_counsellor_student():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    
-    if request.method == 'POST':
-        c_id = request.form['c_id']
-        usn = request.form['usn']
-        
-        # Check if the relationship already exists
-        cursor.execute('''
-            SELECT 1 FROM counsellor_student WHERE c_id = %s AND usn = %s
-        ''', (c_id, usn))
-        existing_relationship = cursor.fetchone()
-        
-        if not existing_relationship:
-            # Insert only if the relationship does not exist
-            cursor.execute('''
-                INSERT INTO counsellor_student (c_id, usn) 
-                VALUES (%s, %s)
-            ''', (c_id, usn))
-            mysql.connection.commit()
-    
-    # Fetch all existing relationships for display
-    cursor.execute('SELECT relationship_id, c_id, usn FROM counsellor_student')
-    relationships = cursor.fetchall()
-    cursor.close()
-
-    return render_template('admin_dashboard.html', relationships=relationships)
-
-@app.route('/update_relationship', methods=['POST'])
-def update_relationship():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    relationship_id = request.form['relationship_id']
-    c_id = request.form['c_id']
-    usn = request.form['usn']
-    
-    try:
-        # Update the counsellor-student relationship
-        cursor.execute('''
-            UPDATE counsellor_student 
-            SET c_id = %s, usn = %s 
-            WHERE relationship_id = %s
-        ''', (c_id, usn, relationship_id))
-        mysql.connection.commit()
-    except Exception as e:
-        print(f"Error updating relationship: {e}")
-        mysql.connection.rollback()  # Rollback in case of error
-    
-    cursor.close()
-    return redirect(url_for('manage_counsellor_student'))
-
-
-@app.route('/manage_performance', methods=['GET', 'POST'])
-def manage_performance():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    
-    if request.method == 'POST':
-        usn = request.form['usn']
-        course_id = request.form['course_id']
-        total_classes = request.form['total_classes']
-        attendance = request.form['attendance']
-        course_marks = request.form['course_marks']
-        cgpa = request.form['cgpa']
-        
-        cursor.execute('''
-            INSERT INTO course_performance (usn, course_id, total_classes, attendance, course_marks, overall_cgpa)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                course_id = VALUES(course_id),
-                total_classes = VALUES(total_classes),
-                attendance = VALUES(attendance),
-                course_marks = VALUES(course_marks),
-                overall_cgpa = VALUES(overall_cgpa)
-        ''', (usn, course_id, total_classes, attendance, course_marks, cgpa))
-        mysql.connection.commit()
-    
-    # Fetch existing performance records
-    cursor.execute('''
-        SELECT cp.usn, cp.total_classes, cp.attendance, cp.course_marks, cp.overall_cgpa, c.name AS course_name
-        FROM course_performance cp
-        JOIN course c ON cp.course_id = c.id
-    ''')
-    performance_data = cursor.fetchall()
-    
-    # Fetch courses for the form
-    cursor.execute('SELECT * FROM course')
-    courses = cursor.fetchall()
-    
-    cursor.close()
-
-    return render_template('admin_dashboard.html', performance_data=performance_data, courses=courses)
-
-@app.route('/update_performance', methods=['POST'])
-def update_performance():
-    usn = request.form['usn']
-    course_id = request.form['course_id']
-    total_classes = request.form['total_classes']
-    attendance = request.form['attendance']
-    course_marks = request.form['course_marks']
-    cgpa = request.form['cgpa']
-    
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('''
-        UPDATE course_performance
-        SET course_id = %s,
-            total_classes = %s,
-            attendance = %s,
-            course_marks = %s,
-            overall_cgpa = %s
-        WHERE usn = %s
-    ''', (course_id, total_classes, attendance, course_marks, cgpa, usn))
-    mysql.connection.commit()
-    cursor.close()
-
-    return redirect(url_for('manage_performance'))
 
 
 if __name__ == '__main__':

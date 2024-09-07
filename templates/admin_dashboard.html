@@ -70,10 +70,12 @@
         </div>
     </nav>
 
+    <!-- Counsellor-Student Relationship Section -->
     <section class="container">
         <h2>Manage Counsellor-Student Relationships</h2>
         <div class="form-container">
-            <form action="{{ url_for('manage_counsellor_student') }}" method="POST">
+            <form action="{{ url_for('admin_dashboard') }}" method="POST">
+                <input type="hidden" name="action" value="manage_counsellor_student">
                 <label for="c_id">Counsellor ID:</label>
                 <input type="number" id="c_id" name="c_id" required>
         
@@ -84,12 +86,12 @@
             </form>
         </div>
 
-        <button class="toggle-btn" onclick="toggleTable('relationshipTable')">Show/Hide Relationships</button>
-        
-        <div id="relationship">
+        <button class="toggle-btn" onclick="toggleTable('relationshipTableDiv')">Show/Hide Relationships</button>
+
+        <div id="relationshipTableDiv" class="hidden">
             <h3>Existing Relationships</h3>
             <input type="text" id="relationshipSearch" class="search-input" onkeyup="searchTable('relationshipTable', 'relationshipSearch')" placeholder="Search for relationships...">
-            <table id="relationshipTable" class="hidden">
+            <table id="relationshipTable">
                 <thead>
                     <tr>
                         <th>Relationship ID</th>
@@ -101,7 +103,8 @@
                 <tbody>
                     {% for relationship in relationships %}
                     <tr>
-                        <form action="{{ url_for('update_relationship') }}" method="POST">
+                        <form action="{{ url_for('admin_dashboard') }}" method="POST">
+                            <input type="hidden" name="action" value="update_relationship">
                             <input type="hidden" name="relationship_id" value="{{ relationship.relationship_id }}">
                             <td>{{ relationship.relationship_id }}</td>
                             <td>
@@ -120,11 +123,13 @@
             </table>
         </div>
     </section>
-    
+
+    <!-- Student Performance Section -->
     <section class="container">
         <h2>Manage Student Performance</h2>
         <div class="form-container">
-            <form action="{{ url_for('manage_performance') }}" method="POST">
+            <form action="{{ url_for('admin_dashboard') }}" method="POST">
+                <input type="hidden" name="action" value="manage_performance">
                 <label for="usn">Student USN:</label>
                 <input type="text" id="usn" name="usn" required>
     
@@ -150,9 +155,9 @@
                 <button type="submit">Save Performance</button>
             </form>
         </div>
-    
-        <button class="toggle-btn" onclick="toggleTable('performanceTable')">Show/Hide Performance Data</button>
-    
+
+        <button class="toggle-btn" onclick="toggleTable('performanceTableDiv')">Show/Hide Performance Data</button>
+
         <div id="performanceTableDiv" class="hidden">
             <h3>Existing Performance Data</h3>
             <input type="text" id="performanceSearch" class="search-input" onkeyup="searchTable('performanceTable', 'performanceSearch')" placeholder="Search for performance data...">
@@ -171,20 +176,17 @@
                 <tbody>
                     {% for data in performance_data %}
                     <tr>
-                        <form action="{{ url_for('update_performance') }}" method="POST">
+                        <form action="{{ url_for('admin_dashboard') }}" method="POST">
+                            <input type="hidden" name="action" value="update_performance">
                             <input type="hidden" name="usn" value="{{ data.usn }}">
+                            <input type="hidden" name="course_id" value="{{ data.course_id }}">
+                        
                             <td>{{ data.usn }}</td>
-                            <td>
-                                <select name="course_id" required>
-                                    {% for course in courses %}
-                                    <option value="{{ course.course_id }}" {% if course.course_id == data.course_id %}selected{% endif %}>{{ course.course_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
+                            <td>{{ data.course_name }}</td>
                             <td><input type="number" name="total_classes" value="{{ data.total_classes }}" required></td>
                             <td><input type="number" name="attendance" value="{{ data.attendance }}" required></td>
                             <td><input type="number" name="course_marks" value="{{ data.course_marks }}" required></td>
-                            <td><input type="number" step="0.01" name="cgpa" value="{{ data.cgpa }}" required></td>
+                            <td><input type="number" step="0.01" name="cgpa" value="{{ data.overall_cgpa }}" required></td>
                             <td><button type="submit">Update</button></td>
                         </form>
                     </tr>
@@ -201,37 +203,36 @@
     </footer>
 
     <script>
-        function toggleTable(tableId) {
-            var table = document.getElementById(tableId);
-            if (table.classList.contains('hidden')) {
-                table.classList.remove('hidden');
+        function toggleTable(divId) {
+            var div = document.getElementById(divId);
+            if (div.classList.contains('hidden')) {
+                div.classList.remove('hidden');
             } else {
-                table.classList.add('hidden');
+                div.classList.add('hidden');
             }
         }
 
         function searchTable(tableId, searchInputId) {
-    var input, filter, table, tr, td, i, j, txtValue;
-    input = document.getElementById(searchInputId);
-    filter = input.value.toUpperCase();
-    table = document.getElementById(tableId);
-    tr = table.getElementsByTagName("tr");
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById(searchInputId);
+            filter = input.value.toUpperCase();
+            table = document.getElementById(tableId);
+            tr = table.getElementsByTagName("tr");
 
-    for (i = 1; i < tr.length; i++) { // Skip the table header
-        tr[i].style.display = "none";
-        td = tr[i].getElementsByTagName("td");
-        for (j = 0; j < td.length; j++) {
-            if (j === 2) { // Assuming USN is in the 3rd column (index 2)
-                txtValue = td[j].textContent || td[j].innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                    break;
+            for (i = 1; i < tr.length; i++) { // Skip the table header
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break;
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
     </script>
 </body>
 </html>
