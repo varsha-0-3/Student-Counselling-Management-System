@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,9 +27,8 @@
         </div>
     </nav>
 
-<div class="batch-button">
-    <a href="{{ url_for('view_batch_students') }}" class="btn view-batch">View Batch Students</a>
-</div>
+
+
 
     <section id="view-meetings">
         <div class="card-list">
@@ -38,6 +36,22 @@
                 <img src="../static/images/meeting.png" alt="Schedule Meetings">
                 <span class="feature">Schedule Meetings</span>
                 <h3>Click here to schedule your meetings with students.</h3>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right card-icon"></i>
+                </div>
+            </a>
+            <a href="{{ url_for('view_batch_attendance') }}" class="card-item">
+                <img src="../static/images/meeting.png" alt="View Batch Attendance and Performance">
+                <span class="feature">View Batch Attendance and Performance</span>
+                <h3>Click To View Batch Attendance and Performance.</h3>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right card-icon"></i>
+                </div>
+            </a>
+            <a href="{{ url_for('view_batch_students') }}" class="card-item">
+                <img src="../static/images/meeting.png" alt="Schedule Meetings">
+                <span class="feature">View Your Batch Students</span>
+                <h3>Click to View Your Batch Students Details</h3>
                 <div class="arrow">
                     <i class="fas fa-arrow-right card-icon"></i>
                 </div>
@@ -61,7 +75,6 @@
                 </div>
             </a>
         
-
             <a href="{{ url_for('announcements') }}" class="card-item">
                 <img src="../static/images/announcements.jpg" alt="Announcements">
                 <span class="feature">Announcements</span>
