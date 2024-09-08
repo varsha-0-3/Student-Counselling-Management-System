@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Attendance</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-back {
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background-color: #0056b3;
+        }
+
+        .search-input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-filter {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-filter:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('counsellor_dashboard') }}" class="btn-back">Back to Dashboard</a>
+        <h2 class="text-center mb-4">Batch Attendance</h2>
+
+        <!-- Search for Any Value -->
+        <input type="text" id="generalSearch" class="search-input" onkeyup="searchGeneral()" placeholder="Search for any value...">
+
+        <!-- Button to filter students with less than 85% attendance -->
+        <button class="btn-filter" onclick="filterLowAttendance()">Show Students with < 85% Attendance</button>
+
+        <table class="table table-hover table-bordered" id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>USN</th>
+                    <th>Course</th>
+                    <th>Total Classes</th>
+                    <th>Attendance</th>
+                    <th>Attendance %</th>
+                    <th>Course Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.usn }}</td>
+                    <td>{{ record.course_name }}</td>
+                    <td>{{ record.total_classes }}</td>
+                    <td>{{ record.attendance }}</td>
+                    <td>{{ record.attendance_percentage | round(2) }}%</td>
+                    <td>{{ record.course_marks }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Search function to filter by any value in the table
+        function searchGeneral() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("generalSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("attendanceTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those that don't match the search query
+            for (i = 1; i < tr.length; i++) {  // Skip the header row
+                tr[i].style.display = "none";  // Hide the row initially
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {  // Loop through all columns
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";  // Show the row if a match is found
+                            break;  // Stop checking other columns for this row
+                        }
+                    }
+                }
+            }
+        }
+
+        // Filter function to show students with less than 85% attendance
+        function filterLowAttendance() {
+            var table, tr, td, i, txtValue;
+            table = document.getElementById("attendanceTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all rows and hide rows where attendance percentage is >= 85%
+            for (i = 1; i < tr.length; i++) {  // Skip the header row
+                td = tr[i].getElementsByTagName("td")[5];  // 6th column is attendance %
+                if (td) {
+                    txtValue = parseFloat(td.textContent) || 0;  // Convert to float
+                    if (txtValue >= 85) {
+                        tr[i].style.display = "none";  // Hide rows with attendance >= 85%
+                    } else {
+                        tr[i].style.display = "";  // Show rows with attendance < 85%
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
