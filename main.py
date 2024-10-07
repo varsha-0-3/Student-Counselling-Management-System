@@ -144,16 +144,18 @@ def update_profile():
     phone_no = request.form.get('phone_no', '')
     parent_email_id = request.form.get('parent_email_id', '')
     parent_phone = request.form.get('parent_phone', '')
+    accommodation_type= request.form.get('accommodation_type', '')
+    address= request.form.get('address', '')
 
     cursor = mysql.connection.cursor()
 
     # Update student profile
     update_query = """
     UPDATE student 
-    SET email_id = %s, phone_no = %s
+    SET email_id = %s, phone_no = %s, accommodation_type=%s,address=%s
     WHERE usn = %s
     """
-    cursor.execute(update_query, ( email_id, phone_no,usn))
+    cursor.execute(update_query, ( email_id, phone_no,accommodation_type,address,usn))
 
     # Update parent details
     update_parent_query = """
