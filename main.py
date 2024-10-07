@@ -288,7 +288,7 @@ def register_login_counsellor():
         cursor.close()
         
         if user:
-            session['logged_in'] = True
+            session['c_logged_in'] = True
             session['name'] = c_name
             session['counsellor_id'] = user['c_id']
             return redirect(url_for('counsellor_dashboard'))
@@ -299,7 +299,7 @@ def register_login_counsellor():
 
 @app.route('/counsellor/dashboard')
 def counsellor_dashboard():
-    if not session.get('logged_in'):
+    if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
 
     response = make_response(render_template('counsellor_dashboard.html'))
@@ -308,7 +308,7 @@ def counsellor_dashboard():
 
 @app.route('/counsellor/view_all_student_documents', methods=['GET', 'POST'])
 def students_documents():
-    if not session.get('logged_in'):
+    if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
 
     usn = None
@@ -335,7 +335,7 @@ def students_documents():
 
 @app.route('/counsellor/batch_students')
 def view_batch_students():
-    if not session.get('logged_in'):
+    if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
 
     c_id = session.get('counsellor_id')
@@ -350,41 +350,71 @@ def view_batch_students():
     students = cursor.fetchall()
     cursor.close()
     return render_template('view_batch_students.html', students=students)
+
+
 @app.route('/counsellor/view_batch_attendance', methods=['GET'])
 def view_batch_attendance():
     # Check if the counsellor is logged in
-    if not session.get('logged_in'):
+    if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
 
     # Fetch counsellor ID from session
     counsellor_id = session.get('counsellor_id')
 
-    cursor = mysql.connection.cursor()
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    # Step 1: Fetch all students (USNs) under this counsellor
+    # Fetch all students under this counsellor
     cursor.execute('''
-        SELECT s.usn, s.name, c.course_name, cp.total_classes, cp.attendance, cp.course_marks, 
-               (cp.attendance / cp.total_classes * 100) AS attendance_percentage
+        SELECT s.usn, s.name
         FROM counsellor_student cs
         JOIN student s ON cs.usn = s.usn
-        JOIN course_performance cp ON cp.usn = s.usn
-        JOIN course c ON cp.course_id = c.course_id
         WHERE cs.c_id = %s
-        ORDER BY s.usn, c.course_name
+        ORDER BY s.usn
     ''', (counsellor_id,))
+    students = cursor.fetchall()
 
+    # Fetch all subjects
+    cursor.execute('SELECT subject_id, subject_name FROM admin_addsubject ORDER BY subject_name')
+    subjects = cursor.fetchall()
+
+    # Create a dictionary to store the attendance data for each student per subject
+    attendance_data = {student['usn']: {'name': student['name'], 'attendance': {}} for student in students}
+
+    # Fetch attendance data for each student and subject
+    cursor.execute('''
+        SELECT usn, subject_id, attendance
+        FROM admin_addattendance
+        WHERE usn IN %s
+    ''', (tuple([student['usn'] for student in students]),))
     attendance_records = cursor.fetchall()
+
+    # Map attendance data to the respective student and subject
+    for record in attendance_records:
+        usn = record['usn']
+        subject_id = record['subject_id']
+        attendance_percentage = record['attendance']
+
+        # Find the subject name for the given subject_id
+        subject_name = next((sub['subject_name'] for sub in subjects if sub['subject_id'] == subject_id), None)
+        if subject_name:
+            attendance_data[usn]['attendance'][subject_name] = attendance_percentage
+
     cursor.close()
 
-    # Step 2: Pass attendance data to the template
-    return render_template('batch_attendance.html', attendance_records=attendance_records)
+    # Pass data to the template
+    return render_template('batch_attendance.html', 
+                           students=students, 
+                           subjects=subjects, 
+                           attendance_data=attendance_data)
+
 
 
 
 @app.route('/view_student_profile/<usn>')
 def view_student_profile(usn):
-    if not session.get('logged_in'):
+    if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
+    
     c_id = session.get('counsellor_id')
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
@@ -398,9 +428,9 @@ def view_student_profile(usn):
                 activity_points.points, 
                 parents.parent_email_id, 
                 parents.parent_phone,
-                student_performance.overall_cgpa 
+                admin_addcgpa.cgpa 
             FROM student
-            LEFT JOIN student_performance ON student.usn = student_performance.usn
+            LEFT JOIN admin_addcgpa ON student.usn = admin_addcgpa.usn
             LEFT JOIN counsellor_student ON student.usn = counsellor_student.usn
             LEFT JOIN counsellor ON counsellor_student.c_id = counsellor.c_id
             LEFT JOIN activity_points ON student.usn = activity_points.usn
@@ -410,8 +440,50 @@ def view_student_profile(usn):
     cursor.execute(query, (usn,))
     result = cursor.fetchone()
     cursor.close()
+
+    if result is None:
+        print("No student found with USN:", usn)
+    else:
+        print("Result:", result)  # This will show all the fetched student data
+
     # Render the profile page with the student data
     return render_template('view_student_profile.html', student=result)
+@app.route('/counsellor/view_student_cgpa', methods=['GET'])
+def view_student_cgpa():
+    # Check if the counsellor is logged in
+    if not session.get('c_logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+
+    # Fetch counsellor ID from session
+    counsellor_id = session.get('counsellor_id')
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Fetch all students (USNs) under this counsellor along with CGPA and SGPA
+    cursor.execute('''
+        SELECT 
+            s.usn, 
+            s.name, 
+            cgpa.cgpa, 
+            cgpa.sgpa 
+        FROM 
+            counsellor_student cs
+        JOIN 
+            student s ON cs.usn = s.usn
+        LEFT JOIN 
+            admin_addcgpa cgpa ON s.usn = cgpa.usn
+        WHERE 
+            cs.c_id = %s
+        ORDER BY 
+            s.usn
+    ''', (counsellor_id,))
+
+    cgpa_records = cursor.fetchall()
+    cursor.close()
+
+    # Render the profile page with the CGPA and SGPA data
+    return render_template('view_student_cgpa.html', cgpa_records=cgpa_records)
+
 
 
 @app.route('/counsellor/logout')
@@ -441,119 +513,127 @@ def register_login_admin():
         cursor.close()
         
         if user:
-            session['logged_in'] = True
+            session['a_logged_in'] = True
             session['email'] = admin_email
             return redirect(url_for('admin_dashboard'))
         else:
             flash('Invalid credentials')
     
     return render_template('admin_login_page.html')
+
+
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
-    if not session.get('logged_in'):
+    if not session.get('a_logged_in'):
         return redirect(url_for('register_login_admin'))
 
+    # Fetch students and subjects for dropdowns
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT usn FROM student')
+    students = cursor.fetchall()
+    
+    cursor.execute('SELECT subject_id, subject_name FROM admin_addsubject')
+    subjects = cursor.fetchall()
+    cursor.execute('SELECT usn, cgpa, sgpa FROM admin_addcgpa')
+    cgpa_records = cursor.fetchall()
 
-    # Logic to handle different POST operations
     if request.method == 'POST':
         action = request.form.get('action')
 
-        # Handle Counsellor-Student Relationship Management
-        if action == 'manage_counsellor_student':
-            # existing logic for managing counsellor-student relationships...
-            pass
-
-        # Handle Counsellor-Student Relationship Update
-        elif action == 'update_relationship':
-            # existing logic for updating relationships...
-            pass
-
-        # Handle Performance Data Management
-        elif action == 'manage_performance':
-            usn = request.form['usn']
-            course_id = request.form['course_id']
-            total_classes = request.form['total_classes']
-            attendance = request.form['attendance']
-            course_marks = request.form['course_marks']
+        # Handle adding subject
+        if action == 'add_subject':
+            subject_name = request.form['subject_name']
+            course_code = request.form['course_code']
+            sem_number = request.form['sem_number']
             
-            try:
-                # Insert new or update existing performance record
-                cursor.execute('''
-                    INSERT INTO course_performance (usn, course_id, total_classes, attendance, course_marks)
-                    VALUES (%s, %s, %s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                        total_classes = VALUES(total_classes),
-                        attendance = VALUES(attendance),
-                        course_marks = VALUES(course_marks)
-                ''', (usn, course_id, total_classes, attendance, course_marks))
-                
-                mysql.connection.commit()
-            except Exception as e:
-                print(f"Error updating performance data: {e}")
-                mysql.connection.rollback()
+            cursor = mysql.connection.cursor()
+            cursor.execute(
+                'INSERT INTO admin_addsubject (subject_name, course_code, sem_number) VALUES (%s, %s, %s)', 
+                (subject_name, course_code, sem_number)
+            )
+            mysql.connection.commit()
+            cursor.close()
+            flash('Subject added successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
 
-        # Handle CGPA entry separately
-        elif action == 'enter_cgpa':
+        # Handle adding test and quiz scores
+        elif action == 'add_scores':
+            usn = request.form['usn']
+            subject_id = request.form['subject_id']
+            test_number = request.form['test_number']
+            test_score = request.form['test_score']
+            quiz_score = request.form['quiz_score']
+            
+            cursor = mysql.connection.cursor()
+            cursor.execute(
+                'INSERT INTO admin_addscores (usn, subject_id, test_number, test_score, quiz_score) VALUES (%s, %s, %s, %s, %s)', 
+                (usn, subject_id, test_number, test_score, quiz_score)
+            )
+            mysql.connection.commit()
+            cursor.close()
+            flash('Test and quiz scores added successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        
+
+   
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        # Handle adding/updating CGPA and SGPA
+        if action == 'add_update_cgpa':
             usn = request.form['usn']
             cgpa = request.form['cgpa']
+            sgpa = request.form['sgpa']
 
-            try:
-                # Insert or update CGPA record
-                cursor.execute('''
-                    INSERT INTO student_performance (usn, overall_cgpa)
-                    VALUES (%s, %s)
-                    ON DUPLICATE KEY UPDATE
-                        overall_cgpa = VALUES(overall_cgpa)
-                ''', (usn, cgpa))
-                
+            cursor.execute(
+                'INSERT INTO admin_addcgpa (usn, cgpa, sgpa) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE cgpa = %s, sgpa = %s', 
+                (usn, cgpa, sgpa, cgpa, sgpa)
+            )
+            mysql.connection.commit()
+            flash('CGPA and SGPA updated successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        
+
+        elif action == 'update_cgpa':
+            usn = request.form['usn']  # This gets the USN of the record being updated
+            cgpa = request.form.get(f'cgpa_{usn}')
+            sgpa = request.form.get(f'sgpa_{usn}')
+
+            if cgpa is not None and sgpa is not None:
+                cursor.execute(
+                    'UPDATE admin_addcgpa SET cgpa = %s, sgpa = %s WHERE usn = %s',
+                    (cgpa, sgpa, usn)
+                )
                 mysql.connection.commit()
-            except ValueError:
-                print("Invalid CGPA value, must be a number.")
-                return "Error: CGPA must be a valid number.", 400
-            except Exception as e:
-                print(f"Error updating CGPA: {e}")
-                mysql.connection.rollback()
+                flash('CGPA and SGPA updated successfully!', 'success')
+                return redirect(url_for('admin_dashboard'))
+            
+        elif action == 'add_attendance':
+            usn = request.form['usn']
+            subject_id = request.form['subject_id']
+            attendance_percentage = request.form['attendance_percentage']
 
-        # Handle Performance Data Update
-        elif action == 'update_performance':
-            # existing logic for updating performance data...
-            pass
+            cursor.execute(
+                'INSERT INTO admin_addattendance (usn, subject_id, attendance) VALUES (%s, %s, %s)',
+                (usn, subject_id, attendance_percentage)
+            )
+            mysql.connection.commit()
+            flash('Attendance added successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
 
-    # Fetch data to render on the page (both GET and POST requests)
-    cursor.execute('SELECT relationship_id, c_id, usn FROM counsellor_student')
-    relationships = cursor.fetchall()
+    return render_template('admin_dashboard.html', students=students, subjects=subjects, cgpa_records=cgpa_records)
 
-    cursor.execute('''
-        SELECT cp.usn, c.course_name, cp.total_classes, cp.attendance, cp.course_marks, 
-               COALESCE(sp.overall_cgpa, 0) AS overall_cgpa
-        FROM course_performance cp
-        LEFT JOIN student_performance sp ON TRIM(cp.usn) = TRIM(sp.usn)
-        LEFT JOIN course c ON cp.course_id = c.course_id
-    ''')
-    performance_data = cursor.fetchall()
 
-    cursor.execute('SELECT * FROM course')
-    courses = cursor.fetchall()
 
-    cursor.close()
-
-    response = make_response(render_template(
-        'admin_dashboard.html',
-        relationships=relationships,
-        performance_data=performance_data,
-        courses=courses
-    ))
-    response.headers['Cache-Control'] = 'no-store'
-    return response
 
 
 
 
 @app.route('/admin/logout')
 def admin_logout():
-    session.clear()
-    return redirect(url_for('select_user'))
+    session['a_logged_in']=False
+    return redirect(url_for('register_login_admin'))
 #------------------------------------------------------------------------------------------
 
 @app.route("/")
@@ -676,7 +756,7 @@ def delete_announcement(id):
 @app.route('/counsellor/view-activity-points')
 def view_activity_points():
     print(f"Session data: {session}")  # Debugging line, To be removed
-    if not session.get('logged_in'):
+    if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
      
     c_id = session.get('counsellor_id')
@@ -822,11 +902,75 @@ def student_view_meetings():
     return render_template('view_meetings.html', meetings=meetings)
 
 
-# -------------------------------acadmeic performace related-----------------------------------
-@app.route('/student/academic_report')
-def view_academic_performance():
-    return
 
+@app.route('/view_test_scores/<subject_id>', methods=['GET'])
+def view_test_scores(subject_id):
+    if not session.get('c_logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+    
+    c_id = session.get('counsellor_id')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Fetch students assigned to the counsellor
+    cursor.execute("SELECT usn FROM counsellor_student WHERE c_id = %s", (c_id,))
+    students = cursor.fetchall()
+
+    # Initialize scores data
+    scores_data = {}
+
+    # Prepare a list of USNs to fetch names for
+    usn_list = [student['usn'] for student in students]
+
+    # Fetch names for all students in one query
+    cursor.execute("SELECT usn, name FROM student WHERE usn IN %s", (tuple(usn_list),))
+    student_names = {row['usn']: row['name'] for row in cursor.fetchall()}
+
+    # Fetch scores for the selected subject
+    for student in students:
+        usn = student['usn']
+        
+        # Fetch scores and join with the name already obtained
+        cursor.execute("""
+            SELECT 
+                admin_addscores.test_number,
+                admin_addscores.test_score,
+                admin_addscores.quiz_score
+            FROM 
+                admin_addscores 
+            WHERE 
+                admin_addscores.subject_id = %s AND admin_addscores.usn = %s
+        """, (subject_id, usn))
+        score_result = cursor.fetchall()
+
+        # Initialize the scores_data entry for the student
+        scores_data[usn] = {
+            'name': student_names.get(usn, ''),  # Get name from the dictionary
+            'scores': {}
+        }
+
+        # Populate the scores
+        for score in score_result:
+            test_num = score['test_number']
+            scores_data[usn]['scores'][test_num] = {
+                'test_score': score['test_score'] if score['test_score'] is not None else 'N/A',
+                'quiz_score': score['quiz_score'] if score['quiz_score'] is not None else 'N/A'
+            }
+
+    cursor.close()
+    return render_template('view_test_scores.html', scores_data=scores_data, subject_id=subject_id)
+
+
+@app.route('/view_subject_scores')
+def view_subject_scores():
+    if not session.get('c_logged_in'):
+        return redirect(url_for('register_login_counsellor'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM admin_addsubject")
+    subjects = cursor.fetchall()
+    cursor.close()
+
+    return render_template('select_subjects.html', subjects=subjects)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batch Attendance</title>
+    <title>View Test Scores</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -22,10 +22,6 @@
         .table thead {
             background-color: #007bff;
             color: #fff;
-        }
-
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #dee2e6;
         }
 
         .btn-back {
@@ -64,35 +60,39 @@
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('counsellor_dashboard') }}" class="btn-back">Back to Dashboard</a>
-        <h2 class="text-center mb-4">Batch Attendance</h2>
+        <a href="{{ url_for('view_subject_scores') }}" class="btn-back">Back to Subject Selection</a>
+        <h2 class="text-center mb-4">Test Scores for Subject ID: {{ subject_id }}</h2>
 
         <!-- Search for Any Value -->
         <input type="text" id="generalSearch" class="search-input" onkeyup="searchGeneral()" placeholder="Search for any value...">
 
-        <!-- Button to filter students with less than 70% attendance -->
-        <button class="btn-filter" onclick="filterLowAttendance()">Show Students with < 70% Attendance</button>
+        <!-- Button to filter students with less than 20 in any test or quiz -->
+        <button class="btn-filter" onclick="filterLowScores()">Show Students with < 20 in any Test or Quiz</button>
 
-        <table class="table table-hover table-bordered" id="attendanceTable">
+        <table class="table table-hover table-bordered" id="scoresTable">
             <thead>
                 <tr>
                     <th>USN</th>
-                    <th>Student Name</th>
-                    {% for subject in subjects %}
-                        <th>{{ subject.subject_name }}</th>
-                    {% endfor %}
+                    <th>Name</th>
+                    <th>T1 Score</th>
+                    <th>Q1 Score</th>
+                    <th>T2 Score</th>
+                    <th>Q2 Score</th>
+                    <th>T3 Score</th>
+                    <th>Q3 Score</th>
                 </tr>
             </thead>
             <tbody>
-                {% for usn, data in attendance_data.items() %}
+                {% for usn, data in scores_data.items() %}
                 <tr>
                     <td>{{ usn }}</td>
-                    <td>{{ data.name }}</td>
-                    {% for subject in subjects %}
-                        <td>
-                            {{ data.attendance.get(subject.subject_name, 'N/A') }}
-                        </td>
-                    {% endfor %}
+                    <td>{{ data.name }}</td>  <!-- Displaying student name -->
+                    <td>{{ data.scores.get('1', {}).get('test_score', 'N/A') }}</td>
+                    <td>{{ data.scores.get('1', {}).get('quiz_score', 'N/A') }}</td>
+                    <td>{{ data.scores.get('2', {}).get('test_score', 'N/A') }}</td>
+                    <td>{{ data.scores.get('2', {}).get('quiz_score', 'N/A') }}</td>
+                    <td>{{ data.scores.get('3', {}).get('test_score', 'N/A') }}</td>
+                    <td>{{ data.scores.get('3', {}).get('quiz_score', 'N/A') }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -105,7 +105,7 @@
             var input, filter, table, tr, td, i, j, txtValue;
             input = document.getElementById("generalSearch");
             filter = input.value.toUpperCase();
-            table = document.getElementById("attendanceTable");
+            table = document.getElementById("scoresTable");
             tr = table.getElementsByTagName("tr");
 
             // Loop through all table rows, and hide those that don't match the search query
@@ -124,24 +124,27 @@
             }
         }
 
-        // Filter function to show students with less than 70% attendance in any subject
-        function filterLowAttendance() {
-            var table, tr, td, i, j, txtValue;
-            table = document.getElementById("attendanceTable");
+        // Filter function to show students with less than 20 in any test or quiz
+        function filterLowScores() {
+            var table, tr, i, j, testScore;
+            table = document.getElementById("scoresTable");
             tr = table.getElementsByTagName("tr");
 
-            // Loop through all rows and hide rows where all attendance percentages are >= 70%
+            // Loop through all rows and hide those where all scores are >= 20
             for (i = 1; i < tr.length; i++) {  // Skip the header row
                 let show = false;
-                for (j = 2; j < tr[i].cells.length; j++) {  // Start from the third column (subjects)
+                // Check scores in the specific columns
+                for (j = 2; j < 8; j++) {  // Score columns from T1 to Q3 (indices 2 to 7)
                     td = tr[i].cells[j];
-                    txtValue = parseFloat(td.textContent) || 0;  // Convert to float
-                    if (txtValue < 70) {
-                        show = true;  // If any subject attendance is below 70%, show the row
-                        break;
+                    if (td) {
+                        testScore = parseFloat(td.textContent) || 0;  // Convert to float
+                        if (testScore < 20) {
+                            show = true;  // If any score is below 20, show the row
+                            break;
+                        }
                     }
                 }
-                tr[i].style.display = show ? "" : "none";
+                tr[i].style.display = show ? "" : "none";  // Show or hide the row based on the scores
             }
         }
     </script>

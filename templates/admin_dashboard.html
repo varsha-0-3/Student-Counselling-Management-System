@@ -4,317 +4,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Counselling Management System</title>
-
-    <!-- Bootstrap CDN -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s; /* Animation */
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .header {
+            font-size: 1.5em;
+            font-weight: bold;
         }
 
         .container {
-            margin-top: 30px;
-            background-color: #fff;
+            margin-top: 50px;
+        }
+
+        .card-body {
+            position: relative;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar {
-            background-color: #007bff;
-        }
-
-        .navbar-brand {
-            color: #fff !important;
-            font-weight: 600;
-            font-size: 1.5rem;
-        }
-
-        .navbar .btn-outline-danger {
-            border-color: #f8d7da;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #e9ecef;
-        }
-
-        .toggle-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-        }
-
-        .toggle-btn:hover {
-            background-color: #0056b3;
-            color: #fff;
-        }
-
-        .form-group input,
-        .form-group select {
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #ced4da;
-        }
-
-        .form-group button {
-            background-color: #28a745;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-        }
-
-        .form-group button:hover {
-            background-color: #218838;
-        }
-
-        .table thead {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-        .table-bordered th,
-        .table-bordered td {
-            border: 1px solid #dee2e6;
-        }
-
-        .table-bordered td {
-            vertical-align: middle;
-        }
-
-        .search-input {
-            margin-bottom: 15px;
-            border-radius: 8px;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            width: 100%;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        footer {
-            background-color: #007bff;
-            color: white;
-            padding: 20px 0;
-        }
-
-        footer p {
-            margin: 0;
             text-align: center;
+        }
+
+        .card-body i {
+            font-size: 3em;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            margin-right: 15px;
+            border-radius: 20px;
+            padding: 10px 20px;
+        }
+
+        @media (min-width: 768px) {
+            .card {
+                height: 300px; /* Fixed height for larger screens */
+            }
+        }
+
+        @media (max-width: 767px) {
+            .card {
+                height: auto; /* Auto height for smaller screens */
+            }
+        }
+
+        .row {
+            margin: 20px 0; /* Spacing between rows */
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="#">SCMS</a>
-        <div class="ml-auto">
-            <img src="{{ url_for('static', filename='images/profile.png') }}" class="rounded-circle" width="40" height="40">
-            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger ml-2">Sign Out</a>
-        </div>
-    </nav>
 
-    <!-- Counsellor-Student Relationship Section -->
     <div class="container">
-        <h2 class="text-center mb-4">Manage Counsellor-Student Relationships</h2>
-        <div class="form-group">
-            <form action="{{ url_for('admin_dashboard') }}" method="POST">
-                <input type="hidden" name="action" value="manage_counsellor_student">
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="c_id">Counsellor ID:</label>
-                        <input type="number" class="form-control" id="c_id" name="c_id" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="usn">Student USN:</label>
-                        <input type="text" class="form-control" id="usn" name="usn" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-success">Save Relationship</button>
-            </form>
+        <div class="action-buttons">
+            <a href="{{ url_for('home') }}" class="btn btn-back btn-outline-primary">Back to Home Page</a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-back btn-outline-danger">Logout</a>
         </div>
+        <h2 class="text-center mb-4">Admin Dashboard</h2>
 
-        <button class="btn btn-info toggle-btn" onclick="toggleTable('relationshipTableDiv')">Show/Hide Relationships</button>
-
-        <div id="relationshipTableDiv" class="hidden mt-4">
-            <h3>Existing Relationships</h3>
-            <input type="text" id="relationshipSearch" class="form-control search-input" onkeyup="searchTable('relationshipTable', 'relationshipSearch')" placeholder="Search for relationships...">
-            <table class="table table-hover table-bordered" id="relationshipTable">
-                <thead>
-                    <tr>
-                        <th>Relationship ID</th>
-                        <th>Counsellor ID</th>
-                        <th>Student USN</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for relationship in relationships %}
-                    <tr>
-                        <form action="{{ url_for('admin_dashboard') }}" method="POST">
-                            <input type="hidden" name="action" value="update_relationship">
-                            <input type="hidden" name="relationship_id" value="{{ relationship.relationship_id }}">
-                            <td>{{ relationship.relationship_id }}</td>
-                            <td>
-                                <input type="number" class="form-control" name="c_id" value="{{ relationship.c_id }}" required>
-                            </td>
-                            <td>{{ relationship.usn }}</td>
-                            <td>
-                                <button type="submit" class="btn btn-warning">Update</button>
-                            </td>
+        <div class="row">
+            <!-- Add Subject Card -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-plus-circle"></i>
+                        <h5 class="card-title">Add Subject</h5>
+                        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                            <input type="hidden" name="action" value="add_subject">
+                            <div class="form-group">
+                                <label for="subjectName">Subject Name</label>
+                                <input type="text" class="form-control" id="subjectName" name="subject_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="courseCode">Course Code</label>
+                                <input type="text" class="form-control" id="courseCode" name="course_code" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="semNumber">Semester Number</label>
+                                <input type="number" class="form-control" id="semNumber" name="sem_number" required>
+                            </div>
+                            <button type="submit" class="btn btn-custom">Add Subject</button>
                         </form>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Test and Quiz Scores Card -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-pencil-alt"></i>
+                        <h5 class="card-title">Add Test/Quiz Scores</h5>
+                        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                            <input type="hidden" name="action" value="add_scores">
+                            <div class="form-group">
+                                <label for="usn">Student USN</label>
+                                <select class="form-control" id="usn" name="usn" required>
+                                    {% for student in students %}
+                                        <option value="{{ student.usn }}">{{ student.usn }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectId">Subject ID</label>
+                                <select class="form-control" id="subjectId" name="subject_id" required>
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject.subject_id }}">{{ subject.subject_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="testNumber">Test Number</label>
+                                <input type="number" class="form-control" id="testNumber" name="test_number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="testScore">Test Score</label>
+                                <input type="number" class="form-control" id="testScore" name="test_score" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="quizScore">Quiz Score</label>
+                                <input type="number" class="form-control" id="quizScore" name="quiz_score" required>
+                            </div>
+                            <button type="submit" class="btn btn-custom">Add Scores</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add CGPA and SGPA Card -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h5 class="card-title">Add CGPA/SGPA</h5>
+                        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                            <input type="hidden" name="action" value="add_update_cgpa">
+                            <div class="form-group">
+                                <label for="usn">Select USN:</label>
+                                <select class="form-control" name="usn" id="usn" required>
+                                    <option value="" disabled selected>Select USN</option>
+                                    {% for student in students %}
+                                        <option value="{{ student.usn }}">{{ student.usn }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cgpa">CGPA:</label>
+                                <input type="number" step="0.01" class="form-control" name="cgpa" id="cgpa" placeholder="Enter CGPA" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sgpa">SGPA:</label>
+                                <input type="number" step="0.01" class="form-control" name="sgpa" id="sgpa" placeholder="Enter SGPA" required>
+                            </div>
+                            <button type="submit" class="btn btn-custom">Add/Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Attendance Card -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle"></i>
+                        <h5 class="card-title">Add Attendance</h5>
+                        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                            <input type="hidden" name="action" value="add_attendance">
+                            <div class="form-group">
+                                <label for="attendanceUsn">Student USN</label>
+                                <select class="form-control" id="attendanceUsn" name="usn" required>
+                                    {% for student in students %}
+                                        <option value="{{ student.usn }}">{{ student.usn }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="attendanceSubjectId">Subject ID</label>
+                                <select class="form-control" id="attendanceSubjectId" name="subject_id" required>
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject.subject_id }}">{{ subject.subject_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="attendancePercentage">Attendance Percentage</label>
+                                <input type="number" class="form-control" id="attendancePercentage" name="attendance_percentage" min="0" max="100" required>
+                            </div>
+                            <button type="submit" class="btn btn-custom">Add Attendance</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update CGPA/SGPA Card -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-edit"></i>
+                        <h5 class="card-title">Update CGPA/SGPA</h5>
+                        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                            <input type="hidden" name="action" value="update_cgpa">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>USN</th>
+                                        <th>CGPA</th>
+                                        <th>SGPA</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in cgpa_records %}
+                                    <tr>
+                                        <td>{{ record.usn }}</td>
+                                        <td>
+                                            <input type="number" step="0.01" name="cgpa_{{ record.usn }}" value="{{ record.cgpa }}" class="form-control" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="sgpa_{{ record.usn }}" value="{{ record.sgpa }}" class="form-control" required>
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn btn-custom" name="usn" value="{{ record.usn }}">Update</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Student Performance Section -->
-    <div class="container">
-        <h2 class="text-center mb-4">Manage Student Performance</h2>
-        <div class="form-group">
-            <form action="{{ url_for('admin_dashboard') }}" method="POST">
-                <input type="hidden" name="action" value="manage_performance">
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="usn">Student USN:</label>
-                        <input type="text" class="form-control" id="usn" name="usn" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="course_id">Course:</label>
-                        <select id="course_id" class="form-control" name="course_id" required>
-                            {% for course in courses %}
-                            <option value="{{ course.course_id }}">{{ course.course_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="col-md-4 mb-3">
-                        <label for="total_classes">Total Classes:</label>
-                        <input type="number" class="form-control" id="total_classes" name="total_classes" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="attendance">Attendance:</label>
-                        <input type="number" class="form-control" id="attendance" name="attendance" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="course_marks">Course Marks:</label>
-                        <input type="number" class="form-control" id="course_marks" name="course_marks" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-success">Save Performance</button>
-            </form>
-        </div>
-
-        <!-- Add CGPA Section -->
-        <div class="form-group">
-            <form action="{{ url_for('admin_dashboard') }}" method="POST">
-                <input type="hidden" name="action" value="enter_cgpa">
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="usn">Student USN:</label>
-                        <input type="text" class="form-control" id="usn" name="usn" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="cgpa">CGPA:</label>
-                        <input type="number" step="0.01" class="form-control" id="cgpa" name="cgpa" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Enter CGPA</button>
-            </form>
-        </div>
-
-        <!-- Show/Hide Attendance and CGPA Section -->
-        <button class="btn btn-info toggle-btn" onclick="toggleTable('attendanceCgpaTableDiv')">Show/Hide Attendance and CGPA</button>
-
-        <!-- Attendance and CGPA Section -->
-        <div id="attendanceCgpaTableDiv" class="hidden mt-4">
-            <h3>Attendance and CGPA Details</h3>
-            <input type="text" id="attendanceCgpaSearch" class="form-control search-input" onkeyup="searchTable('attendanceCgpaTable', 'attendanceCgpaSearch')" placeholder="Search for details...">
-            <table class="table table-hover table-bordered" id="attendanceCgpaTable">
-                <thead>
-                    <tr>
-                        <th>USN</th>
-                        <th>Course</th>
-                        <th>Total Classes</th>
-                        <th>Attendance</th>
-                        <th>Course Marks</th>
-                        <th>CGPA</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in performance_data %}
-                    <tr>
-                        <td>{{ data.usn }}</td>
-                        <td>{{ data.course_name }}</td>
-                        <td>{{ data.total_classes }}</td>
-                        <td>{{ data.attendance }}</td>
-                        <td>{{ data.course_marks }}</td>
-                        <td>{{ data.overall_cgpa }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <footer class="footer mt-5 py-3">
-        <div class="container">
-            <p>&copy; 2024 Student Counselling Management System. All rights reserved.</p>
-        </div>
-    </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function toggleTable(divId) {
-            var div = document.getElementById(divId);
-            if (div.classList.contains('hidden')) {
-                div.classList.remove('hidden');
-            } else {
-                div.classList.add('hidden');
-            }
-        }
-
-        function searchTable(tableId, searchInputId) {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById(searchInputId);
-            filter = input.value.toUpperCase();
-            table = document.getElementById(tableId);
-            tr = table.getElementsByTagName("tr");
-
-            for (i = 1; i < tr.length; i++) { // Skip the table header
-                tr[i].style.display = "none";
-                td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = "";
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>
