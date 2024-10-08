@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student CGPA and SGPA</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-back {
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('counsellor_dashboard') }}" class="btn-back">Back to Dashboard</a>
+        <h2 class="text-center mb-4">Student CGPA and SGPA</h2>
+
+        <table class="table table-hover table-bordered" id="cgpaTable">
+            <thead>
+                <tr>
+                    <th>USN</th>
+                    <th>Student Name</th>
+                    <th>CGPA</th>
+                    <th>SGPA</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in cgpa_records %}
+                <tr>
+                    <td>{{ record.usn }}</td>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.cgpa if record.cgpa is not none else 'N/A' }}</td>
+                    <td>{{ record.sgpa if record.sgpa is not none else 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
