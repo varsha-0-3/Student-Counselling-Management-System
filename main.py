@@ -258,8 +258,7 @@ def view_all_documents(usn):
 
 @app.route('/student/documents/view_document/<int:document_id>')
 def view_document(document_id):
-    if not session.get('logged_in'):
-        return redirect(url_for('register_login_student'))
+    
 
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT document_name, file_data FROM student_documents WHERE id = %s', (document_id,))
