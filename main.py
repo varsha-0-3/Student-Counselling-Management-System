@@ -156,8 +156,9 @@ def update_profile():
     accommodation_type= request.form.get('accommodation_type', '')
     address= request.form.get('address', '')
     profile_pic = request.form.get('profile_pic', '')  # New field
-    if 'drive.google.com' in profile_pic and 'view?usp=sharing' in profile_pic:
-        profile_pic = profile_pic.replace('/view?usp=sharing', '/preview')
+    if 'drive.google.com' in profile_pic and ('view?usp=sharing' in profile_pic or 'usp=drive_link' in profile_pic):
+        profile_pic = profile_pic.replace('/view?usp=sharing', '/preview').replace('/view?usp=drive_link', '/preview')
+
     cursor = mysql.connection.cursor()
 
     # Update student profile
@@ -630,7 +631,8 @@ def admin_dashboard():
     subjects = cursor.fetchall()
     cursor.execute('SELECT usn, cgpa, sgpa FROM admin_addcgpa')
     cgpa_records = cursor.fetchall()
-
+    cursor.execute('SELECT c_id, c_name FROM counsellor')
+    counsellors = cursor.fetchall()
     if request.method == 'POST':
         action = request.form.get('action')
 
@@ -715,8 +717,59 @@ def admin_dashboard():
             mysql.connection.commit()
             flash('Attendance added successfully!', 'success')
             return redirect(url_for('admin_dashboard'))
+        
+        elif action == 'add_update_counsellor':
+            c_id = request.form.get('c_id')
+            c_name = request.form['c_name']
+            c_email = request.form['c_email']
+            password = request.form['password']
+            c_contact = request.form['c_contact']
+            batch_no = request.form['batch_no']
+            max_c_id = max([counsellor['c_id'] for counsellor in counsellors], default=0)
+            next_c_id = max_c_id + 1
+            
+            if c_id and any(counsellor['c_id'] == int(c_id) for counsellor in counsellors):  # Update existing counsellor
+                cursor.execute(
+                    'UPDATE counsellor SET c_name = %s, c_email = %s, password = %s, c_contact = %s,  batch_no = %s WHERE c_id = %s',
+                    (c_name, c_email, password, c_contact, batch_no, c_id)
+                )
+                flash('Counsellor details updated successfully!', 'success')
+            else:  # Add new counsellor
+                cursor.execute(
+                    'INSERT INTO counsellor (c_id, c_name, c_email, password, c_contact, batch_no) VALUES (%s, %s, %s, %s, %s, %s)',
+                    (next_c_id, c_name, c_email, password, c_contact, batch_no)
+                )
+                flash('New counsellor added successfully!', 'success')
 
-    return render_template('admin_dashboard.html', students=students, subjects=subjects, cgpa_records=cgpa_records)
+            mysql.connection.commit()
+            return redirect(url_for('admin_dashboard'))
+        elif action == 'assign_counsellor':
+            c_id = request.form['c_id']
+            usn = request.form['usn']
+
+            try:
+                # Insert into counsellor_student table
+                cursor.execute(
+                    'INSERT INTO counsellor_student (c_id, usn) VALUES (%s, %s)',
+                    (c_id, usn)
+                )
+                mysql.connection.commit()
+                flash('Counsellor assigned to student successfully!', 'success')
+            except Exception as e:
+                flash(f'Error assigning counsellor to student: {str(e)}', 'danger')
+                mysql.connection.rollback()
+
+        return redirect(url_for('admin_dashboard'))
+
+    return render_template(
+        'admin_dashboard.html',
+        students=students,
+        subjects=subjects,
+        cgpa_records=cgpa_records,
+        counsellors=counsellors,
+    )
+
+
 
 
 

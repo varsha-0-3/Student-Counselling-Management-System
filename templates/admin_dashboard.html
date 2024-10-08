@@ -346,6 +346,80 @@ nav {
         </div>
     </div>
 </div>
+<!-- Add/Update Counsellor Card -->
+<div class="col-lg-4 col-md-6 mb-4 d-flex">
+    <div class="card w-100">
+        <div class="card-body">
+            <i class="fas fa-user-plus"></i>
+            <h5 class="card-title">Add/Update Counsellor</h5>
+            <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                <input type="hidden" name="action" value="add_update_counsellor">
+                <div class="form-group">
+                    <label for="c_id">Select Counsellor (for update):</label>
+                    <select class="form-control" name="c_id" id="c_id">
+                        {% for counsellor in counsellors %}
+                            <option value="{{ counsellor.c_id }}">
+                                {{ counsellor.c_id }} - {{ counsellor.c_name }}
+                            </option>
+                        {% endfor %}
+                        <!-- Add option for a new counsellor with the next available ID -->
+                        <option value="{{ next_c_id }}">Add New Counsellor (ID: {{ next_c_id }})</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="c_name">Counsellor Name:</label>
+                    <input type="text" class="form-control" name="c_name" id="c_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="c_email">Email:</label>
+                    <input type="email" class="form-control" name="c_email" id="c_email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" name="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="c_contact">Contact:</label>
+                    <input type="text" class="form-control" name="c_contact" id="c_contact" required>
+                </div>
+                <div class="form-group">
+                    <label for="batch_no">Batch Number:</label>
+                    <input type="text" class="form-control" name="batch_no" id="batch_no" required>
+                </div>
+                <button type="submit" class="btn btn-custom">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Assign Counsellor to Student Card -->
+<div class="col-lg-4 col-md-6 mb-4 d-flex">
+    <div class="card w-100">
+        <div class="card-body">
+            <i class="fas fa-user-plus"></i>
+            <h5 class="card-title">Assign Counsellor to Student</h5>
+            <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                <input type="hidden" name="action" value="assign_counsellor">
+                <div class="form-group">
+                    <label for="c_id">Select Counsellor:</label>
+                    <select class="form-control" name="c_id" id="c_id" required>
+                        {% for counsellor in counsellors %}
+                            <option value="{{ counsellor.c_id }}">
+                                {{ counsellor.c_id }} - {{ counsellor.c_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="usn">Student USN:</label>
+                    <input type="text" class="form-control" name="usn" id="usn" required>
+                </div>
+                <button type="submit" class="btn btn-custom">Assign Counsellor</button>
+            </form>
+        </div>
+    </div>
+</div>
 
         </div>
     </div>
