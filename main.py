@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import io
 import MySQLdb
 from datetime import datetime
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages and sessions
@@ -16,6 +17,14 @@ app.config['MYSQL_PORT'] = 10363
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
+
+# Initialize Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Add your SMTP server details
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'scmsrvce24@gmail.com'  # Add your email username
+app.config['MAIL_PASSWORD'] = 'wulr rrdk onxi cmfa'  # Add your email password
+mail=Mail(app)
 
 #--------So that the points(which has to appear in new lines) don't become paragraphs in announcements-------
 @app.template_filter('nl2br')
@@ -317,6 +326,7 @@ def students_documents():
 
     usn = None
     documents = []
+
 
     if request.method == 'POST':
         usn = request.form['usn']
@@ -717,11 +727,31 @@ def submit_announcement():
         link = request.form.get('link')
         author = session.get('name')
         date = datetime.now().strftime('%Y-%m-%d %H:%M')
+        c_id = session.get('counsellor_id')
         
         cursor = mysql.connection.cursor()
         cursor.execute('INSERT INTO announcements (title, content, link, author, date) VALUES (%s, %s, %s, %s, %s)', (title, content, link, author, date))
         mysql.connection.commit()
+
+        # ----Fetch the students who belong to the counsellor's batch----#
+        cursor.execute('''
+            SELECT DISTINCT s.email_id 
+            FROM student s
+            JOIN counsellor_student cs ON s.usn = cs.usn
+            WHERE cs.c_id = %s
+        ''', (c_id,))
+        student_emails = cursor.fetchall()
         cursor.close()
+
+        #----send mail----#
+        with mail.connect() as conn:
+            for email in student_emails:
+                msg = Message('New Announcement', 
+                              sender='scmsrvce24@gmail.com', 
+                              recipients=[email['email_id']])
+                msg.body = f"Hello, there is a new announcement titled '{title}'.\n\n{content}\n\nLink: {link if link else ''}\n\nBest regards,\n{author}"
+                conn.send(msg)
+
         flash('Announcement created successfully!')
         return redirect(url_for('announcements'))
     
