@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #dfeefe;
+        }
+
+        nav {
+            background: rgba(1, 12, 22, 0.95); /* Slightly more opaque for better visibility */
+            color: #fff;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            max-height: 60px;
+            width: auto;
+        }
+
+        .container {
+            margin-top: 10%; /* Adjust according to nav height */
+            background-color: #dbbefe;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 3%;
+            padding: 20px;
+            border: dashed;
+            background-color: #fdfdfd;
+            margin-top: 2%;
+            border-radius: 8px;
+        }
+
+        .table {
+            font-size: 0.9em; /* Slightly reduce table font size */
+        }
+
+        .table thead {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-back {
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background-color: #ffffff;
+        }
+
+        .search-input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-filter {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-filter:hover {
+            background-color: #c82333;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em; /* Increase heading size for better visibility */
+            color: #343a40; /* Darker text for better contrast */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" class="logo">
+            <span>Student Management Dashboard</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="{{ url_for('counsellor_dashboard') }}" class="btn-back">Back to Dashboard</a>
+
+        <!-- Section 1: Batch Attendance -->
+        <div class="section" id="batch-attendance">
+            <h2 class="text-center">Batch Attendance</h2>
+
+            <!-- Search for Any Value -->
+            <input type="text" id="generalSearch" class="search-input" onkeyup="searchGeneral()" placeholder="Search for any value...">
+
+            <!-- Button to filter students with less than 70% attendance -->
+            <button class="btn-filter" onclick="filterLowAttendance()">Show Students with < 70% Attendance</button>
+
+            <table class="table table-hover table-bordered" id="attendanceTable">
+                <thead>
+                    <tr>
+                        <th>USN</th>
+                        <th>Student Name</th>
+                        {% for subject in subjects %}
+                            <th>{{ subject.subject_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usn, data in attendance_data.items() %}
+                    <tr>
+                        <td>{{ usn }}</td>
+                        <td>{{ data.name }}</td>
+                        {% for subject in subjects %}
+                            <td>
+                                {{ data.attendance.get(subject.subject_name, 'N/A') }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 2: Student CGPA and SGPA -->
+        <div class="section" id="cgpa-sgpa">
+            <h2 class="text-center">Student CGPA and SGPA</h2>
+
+            <table class="table table-hover table-bordered" id="cgpaTable">
+                <thead>
+                    <tr>
+                        <th>USN</th>
+                        <th>Student Name</th>
+                        <th>CGPA</th>
+                        <th>SGPA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in cgpa_records %}
+                    <tr>
+                        <td>{{ record.usn }}</td>
+                        <td>{{ record.name }}</td>
+                        <td>{{ record.cgpa if record.cgpa is not none else 'N/A' }}</td>
+                        <td>{{ record.sgpa if record.sgpa is not none else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 3: Select Subject for Test Scores -->
+        <div class="section" id="select-subjects">
+            <h2 class="text-center">Select a Subject to View Test and Quiz Scores</h2>
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Subject ID</th>
+                        <th>Subject Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.subject_id }}</td>
+                        <td>{{ subject.subject_name }}</td>
+                        <td>
+                            <a href="{{ url_for('view_test_scores', subject_id=subject.subject_id) }}" class="btn btn-primary">View Scores</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Search function to filter by any value in the table
+        function searchGeneral() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("generalSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("attendanceTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those that don't match the search query
+            for (i = 1; i < tr.length; i++) {  // Skip the header row
+                tr[i].style.display = "none";  // Hide the row initially
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {  // Loop through all columns
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";  // Show the row if a match is found
+                            break;  // Stop checking other columns for this row
+                        }
+                    }
+                }
+            }
+        }
+
+        // Filter function to show students with less than 70% attendance in any subject
+        function filterLowAttendance() {
+            var table, tr, td, i, j, txtValue;
+            table = document.getElementById("attendanceTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all rows and hide rows where all attendance percentages are >= 70%
+            for (i = 1; i < tr.length; i++) {  // Skip the header row
+                let show = false;
+                for (j = 2; j < tr[i].cells.length; j++) {  // Start from the third column (subjects)
+                    td = tr[i].cells[j];
+                    txtValue = parseFloat(td.textContent) || 0;  // Convert to float
+                    if (txtValue < 70) {
+                        show = true;  // If any subject attendance is below 70%, show the row
+                        break;
+                    }
+                }
+                tr[i].style.display = show ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
