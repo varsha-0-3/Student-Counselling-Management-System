@@ -22,21 +22,45 @@
             background: #aec9e6;
         }
         .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        .container .title {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            color: #333;
-            text-align: center;
-        }
+    max-width: 800px;
+    width: 100%;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+/* Flexbox layout for the title */
+.container .title {
+    display: flex; /* Use flexbox to align items */
+    justify-content: space-between; /* Space between text and button */
+    align-items: center; /* Center items vertically */
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #333;
+    width: 100%; /* Ensure the title takes full width */
+}
+
+/* Center the title text */
+.container .title span {
+    flex: 2; /* Allow the title to take all available space */
+    text-align: left; /* Center the text */
+}
+
+/* Button styling */
+.container .title a {
+    padding: 0.7rem 1.5rem;
+    background: #f0a500;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
         .profile-pic-container {
             display: flex;
             justify-content: center;
@@ -78,6 +102,7 @@
             color: #444;
             border-bottom: 2px solid #ddd;
             padding-bottom: 5px;
+            text-align: left; /* Ensure section titles are left-aligned */
         }
         .section .details {
             display: flex;
@@ -94,12 +119,13 @@
             align-items: center;
         }
         .details .detail-item span {
-            flex: 1;
+            flex: 2;
             font-weight: 500;
-            color: #555;
+            color: #1f1f1f;
         }
         .details .detail-item input,
-        .details .detail-item select {
+        .details .detail-item select,
+        .details .detail-item textarea {
             flex: 2;
             padding: 6px 8px;
             border: 1px solid #ccc;
@@ -108,13 +134,18 @@
             background-color: transparent;
             outline: none;
         }
-        .details .detail-item input[readonly] {
-            color: #6f8889;
+        .details .detail-item textarea {
+            resize: none; /* Prevent resizing for read-only fields */
+        }
+        .details .detail-item input[readonly],
+        .details .detail-item textarea[readonly] {
+            color: #454545;
             background-color: transparent;
             border: none;
         }
         .details .detail-item input:focus,
-        .details .detail-item select:focus {
+        .details .detail-item select:focus,
+        .details .detail-item textarea:focus {
             border-color: #007bff;
         }
         .edit-button,
@@ -158,7 +189,8 @@
                 align-items: flex-start;
             }
             .details .detail-item input,
-            .details .detail-item select {
+            .details .detail-item select,
+            .details .detail-item textarea {
                 width: 100%;
                 margin-top: 5px;
             }
@@ -166,19 +198,24 @@
     </style>
 </head>
 <body>
+    
 <div class="container">
-    <div class="title">Student Profile</div>
+    <div class="title">
+        <span>Student Profile (Recently Updated)</span> <!-- Wrap text in a span for better alignment -->
+        <a href="{{ url_for('student_dashboard') }}">
+            Home
+        </a>
+    </div>
+    
+    
 
     <form id="profileForm" action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
         <!-- Profile Picture Section -->
         <div class="profile-pic-container">
-            
-
             <div style="left: 0; width: 50%; height: 0; position: relative; padding-bottom: 50%; max-width: 400px;">
-                <iframe src="{{student.profile_pic}}" style="top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;" allowfullscreen></iframe>
+                <iframe src="{{ student.profile_pic }}" style="top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;" allowfullscreen></iframe>
             </div>
-            
-        </a>
+            <!-- If you have a label for uploading a new profile picture, ensure it's properly placed here -->
         </div>
 
         <!-- Personal Information Section -->
@@ -256,6 +293,16 @@
                 <div class="detail-item">
                     <span>Points:</span>
                     <span>{{ student['points'] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Profile photo</div>
+            <div class="details">
+                <div class="detail-item">
+                    <span>Drive link(View For All):</span>
+                    <input type="url" name="profile_pic" value="{{ student['profile_pic'] }}" readonly>
                 </div>
             </div>
         </div>
