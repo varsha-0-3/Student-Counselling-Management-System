@@ -4,11 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Activity Points</title>
-    <link rel="stylesheet" href="../static/css/update_activity_points.css">
-   
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/update_activity_points.css') }}">
+  
 </head>
 <body>
-    
+    <nav>
+        <div class="nav-container">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" alt="RVCE Logo" class="logo">
+            </div>
+            
+            <div class="actions">
+                <a href="{{ url_for('student_dashboard') }}" class="go-back-btn">Go Back</a>
+                
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <h1>Update Activity Points</h1>
         <form action="{{ url_for('update_activity_points') }}" method="POST">

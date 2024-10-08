@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scheduled Meetings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/update_activity_points.css') }}">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -16,8 +17,8 @@
         }
 
         .container {
-            width: 80%;
-            margin: 50px auto;
+            max-width: 70%;
+            margin: 40px auto;
             background-color: #ffffff;
             padding: 20px;
             border-radius: 12px;
@@ -33,7 +34,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 2%;
         }
 
         table, th, td {
@@ -58,6 +59,18 @@
     </style>
 </head>
 <body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" alt="RVCE Logo" class="logo">
+            </div>
+            
+            <div class="actions">
+                <a href="{{ url_for('student_dashboard') }}" class="go-back-btn">Go Back</a>
+                
+            </div>
+        </div>
+    </nav>
     <div class="container">
         <h2>Scheduled Meetings</h2>
         <table>
