@@ -355,9 +355,9 @@ def view_batch_students():
     cursor.close()
     return render_template('view_batch_students.html', students=students)
 
-
-@app.route('/counsellor/view_batch_attendance', methods=['GET'])
-def view_batch_attendance():
+# ------------------------------------------------------
+@app.route('/counsellor/dashboard/academic_profile', methods=['GET'])
+def student_academic_profile():
     # Check if the counsellor is logged in
     if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
@@ -367,7 +367,31 @@ def view_batch_attendance():
 
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    # Fetch all students under this counsellor
+    # 1. Fetch subjects
+    cursor.execute("SELECT * FROM admin_addsubject")
+    subjects = cursor.fetchall()
+
+    # 2. Fetch all students (USNs) under this counsellor along with CGPA and SGPA
+    cursor.execute('''
+        SELECT 
+            s.usn, 
+            s.name, 
+            cgpa.cgpa, 
+            cgpa.sgpa 
+        FROM 
+            counsellor_student cs
+        JOIN 
+            student s ON cs.usn = s.usn
+        LEFT JOIN 
+            admin_addcgpa cgpa ON s.usn = cgpa.usn
+        WHERE 
+            cs.c_id = %s
+        ORDER BY 
+            s.usn
+    ''', (counsellor_id,))
+    cgpa_records = cursor.fetchall()
+
+    # 3. Fetch all students under this counsellor for attendance
     cursor.execute('''
         SELECT s.usn, s.name
         FROM counsellor_student cs
@@ -376,10 +400,6 @@ def view_batch_attendance():
         ORDER BY s.usn
     ''', (counsellor_id,))
     students = cursor.fetchall()
-
-    # Fetch all subjects
-    cursor.execute('SELECT subject_id, subject_name FROM admin_addsubject ORDER BY subject_name')
-    subjects = cursor.fetchall()
 
     # Create a dictionary to store the attendance data for each student per subject
     attendance_data = {student['usn']: {'name': student['name'], 'attendance': {}} for student in students}
@@ -405,11 +425,71 @@ def view_batch_attendance():
 
     cursor.close()
 
-    # Pass data to the template
-    return render_template('batch_attendance.html', 
-                           students=students, 
-                           subjects=subjects, 
-                           attendance_data=attendance_data)
+    # Render the dashboard with the combined data
+    return render_template(
+        'view_batch_academic_profile.html', 
+        subjects=subjects,                # For subject scores
+        cgpa_records=cgpa_records,        # For CGPA/SGPA view
+        students=students,                # For attendance view
+        attendance_data=attendance_data    # For attendance mapping
+    )
+
+
+# --------------------------------------------------------------------------
+# @app.route('/counsellor/view_batch_attendance', methods=['GET'])
+# def view_batch_attendance():
+#     # Check if the counsellor is logged in
+#     if not session.get('c_logged_in'):
+#         return redirect(url_for('register_login_counsellor'))
+
+#     # Fetch counsellor ID from session
+#     counsellor_id = session.get('counsellor_id')
+
+#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+#     # Fetch all students under this counsellor
+#     cursor.execute('''
+#         SELECT s.usn, s.name
+#         FROM counsellor_student cs
+#         JOIN student s ON cs.usn = s.usn
+#         WHERE cs.c_id = %s
+#         ORDER BY s.usn
+#     ''', (counsellor_id,))
+#     students = cursor.fetchall()
+
+#     # Fetch all subjects
+#     cursor.execute('SELECT subject_id, subject_name FROM admin_addsubject ORDER BY subject_name')
+#     subjects = cursor.fetchall()
+
+#     # Create a dictionary to store the attendance data for each student per subject
+#     attendance_data = {student['usn']: {'name': student['name'], 'attendance': {}} for student in students}
+
+#     # Fetch attendance data for each student and subject
+#     cursor.execute('''
+#         SELECT usn, subject_id, attendance
+#         FROM admin_addattendance
+#         WHERE usn IN %s
+#     ''', (tuple([student['usn'] for student in students]),))
+#     attendance_records = cursor.fetchall()
+
+#     # Map attendance data to the respective student and subject
+#     for record in attendance_records:
+#         usn = record['usn']
+#         subject_id = record['subject_id']
+#         attendance_percentage = record['attendance']
+
+#         # Find the subject name for the given subject_id
+#         subject_name = next((sub['subject_name'] for sub in subjects if sub['subject_id'] == subject_id), None)
+#         if subject_name:
+#             attendance_data[usn]['attendance'][subject_name] = attendance_percentage
+
+#     cursor.close()
+
+#     # Pass data to the template
+#     return render_template('batch_attendance.html', 
+#                            students=students, 
+#                            subjects=subjects, 
+#                            attendance_data=attendance_data)
 
 
 
@@ -452,41 +532,42 @@ def view_student_profile(usn):
 
     # Render the profile page with the student data
     return render_template('view_student_profile.html', student=result)
-@app.route('/counsellor/view_student_cgpa', methods=['GET'])
-def view_student_cgpa():
-    # Check if the counsellor is logged in
-    if not session.get('c_logged_in'):
-        return redirect(url_for('register_login_counsellor'))
 
-    # Fetch counsellor ID from session
-    counsellor_id = session.get('counsellor_id')
+# @app.route('/counsellor/view_student_cgpa', methods=['GET'])
+# def view_student_cgpa():
+#     # Check if the counsellor is logged in
+#     if not session.get('c_logged_in'):
+#         return redirect(url_for('register_login_counsellor'))
 
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+#     # Fetch counsellor ID from session
+#     counsellor_id = session.get('counsellor_id')
 
-    # Fetch all students (USNs) under this counsellor along with CGPA and SGPA
-    cursor.execute('''
-        SELECT 
-            s.usn, 
-            s.name, 
-            cgpa.cgpa, 
-            cgpa.sgpa 
-        FROM 
-            counsellor_student cs
-        JOIN 
-            student s ON cs.usn = s.usn
-        LEFT JOIN 
-            admin_addcgpa cgpa ON s.usn = cgpa.usn
-        WHERE 
-            cs.c_id = %s
-        ORDER BY 
-            s.usn
-    ''', (counsellor_id,))
+#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    cgpa_records = cursor.fetchall()
-    cursor.close()
+#     # Fetch all students (USNs) under this counsellor along with CGPA and SGPA
+#     cursor.execute('''
+#         SELECT 
+#             s.usn, 
+#             s.name, 
+#             cgpa.cgpa, 
+#             cgpa.sgpa 
+#         FROM 
+#             counsellor_student cs
+#         JOIN 
+#             student s ON cs.usn = s.usn
+#         LEFT JOIN 
+#             admin_addcgpa cgpa ON s.usn = cgpa.usn
+#         WHERE 
+#             cs.c_id = %s
+#         ORDER BY 
+#             s.usn
+#     ''', (counsellor_id,))
 
-    # Render the profile page with the CGPA and SGPA data
-    return render_template('view_student_cgpa.html', cgpa_records=cgpa_records)
+#     cgpa_records = cursor.fetchall()
+#     cursor.close()
+
+#     # Render the profile page with the CGPA and SGPA data
+#     return render_template('view_student_cgpa.html', cgpa_records=cgpa_records)
 
 
 
@@ -907,7 +988,7 @@ def student_view_meetings():
 
 
 
-@app.route('/view_test_scores/<subject_id>', methods=['GET'])
+@app.route('/counsellor/dashboard/academic_profile/view_test_scores/<subject_id>', methods=['GET'])
 def view_test_scores(subject_id):
     if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
@@ -964,17 +1045,17 @@ def view_test_scores(subject_id):
     return render_template('view_test_scores.html', scores_data=scores_data, subject_id=subject_id)
 
 
-@app.route('/view_subject_scores')
-def view_subject_scores():
-    if not session.get('c_logged_in'):
-        return redirect(url_for('register_login_counsellor'))
+# @app.route('/view_subject_scores')
+# def view_subject_scores():
+#     if not session.get('c_logged_in'):
+#         return redirect(url_for('register_login_counsellor'))
 
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT * FROM admin_addsubject")
-    subjects = cursor.fetchall()
-    cursor.close()
+#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+#     cursor.execute("SELECT * FROM admin_addsubject")
+#     subjects = cursor.fetchall()
+#     cursor.close()
 
-    return render_template('select_subjects.html', subjects=subjects)
+#     return render_template('select_subjects.html', subjects=subjects)
 
 if __name__ == '__main__':
     app.run(debug=True)

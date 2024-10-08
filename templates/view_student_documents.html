@@ -87,9 +87,42 @@
         .document-table td a:hover {
             text-decoration: underline;
         }
+        nav {
+        background: rgba(1, 12, 22, 0.95); /* Slightly more opaque for better visibility */
+        color: #fff;
+        padding: 10px 0;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .logo {
+        max-height: 60px;
+        width: auto;
+    }
     </style>
 </head>
 <body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/rvce_logo.png') }}" alt="RVCE Logo" class="logo">
+            </div>
+            
+            
+        </div>
+    </nav>
     <div class="container">
         <div class="card">
             <h2>View Student Documents</h2>
