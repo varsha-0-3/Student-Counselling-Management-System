@@ -21,9 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Validation functions
     function validateName(name) {
-        const re = /^[a-zA-Z\s]*$/;
+        const re = /^[a-zA-Z\s.]+$/;
         return re.test(name);
     }
+    
 
     function validateUsn(usn) {
         const re = /^1RV\d{2}[A-Z]{2,3}\d{3}$/;
