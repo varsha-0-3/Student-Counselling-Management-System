@@ -146,16 +146,18 @@ def update_profile():
     parent_phone = request.form.get('parent_phone', '')
     accommodation_type= request.form.get('accommodation_type', '')
     address= request.form.get('address', '')
-
+    profile_pic = request.form.get('profile_pic', '')  # New field
+    if 'drive.google.com' in profile_pic and 'view?usp=sharing' in profile_pic:
+        profile_pic = profile_pic.replace('/view?usp=sharing', '/preview')
     cursor = mysql.connection.cursor()
 
     # Update student profile
     update_query = """
     UPDATE student 
-    SET email_id = %s, phone_no = %s, accommodation_type=%s,address=%s
+    SET email_id = %s, phone_no = %s, accommodation_type=%s,address=%s,profile_pic=%s
     WHERE usn = %s
     """
-    cursor.execute(update_query, ( email_id, phone_no,accommodation_type,address,usn))
+    cursor.execute(update_query, ( email_id, phone_no,accommodation_type,address,profile_pic,usn))
 
     # Update parent details
     update_parent_query = """
