@@ -209,7 +209,8 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_data = file.read()
-            usn = request.form['usn']
+            # usn = request.form['usn']
+            usn = session.get('usn')
             document_type_id = int(request.form['document_type_id'])
             semester = int(request.form['semester'])
             upload_date = datetime.now()
@@ -232,7 +233,7 @@ def upload_file():
     document_types = cursor.fetchall()
     cursor.close()
 
-    return render_template('student_uploads.html', document_types=document_types)
+    return render_template('student_uploads.html', document_types=document_types,usn=session.get('usn'))
 
 
 
@@ -324,7 +325,7 @@ def students_documents():
     if not session.get('c_logged_in'):
         return redirect(url_for('register_login_counsellor'))
 
-    usn = None
+    usn = ""
     documents = []
 
 
