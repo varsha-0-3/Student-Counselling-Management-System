@@ -112,7 +112,8 @@
             <form method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="usn">USN</label>
-                    <input type="text" name="usn" id="usn" placeholder="Enter Student USN" required>
+                    <a>{{usn}}</a>
+                    
                 </div>
                 <div class="form-group">
                     <label for="document_type_id">Document Type</label>
@@ -153,7 +154,7 @@
     <script>
         document.getElementById('view-documents-btn').addEventListener('click', function(event) {
             event.preventDefault();
-            var usn = document.getElementById('usn').value;
+           var usn = "{{usn}}";
             if (usn) {
                 window.location.href = '/student/documents/view_all/' + usn;
             } else {
