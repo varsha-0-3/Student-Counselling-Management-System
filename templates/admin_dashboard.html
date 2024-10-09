@@ -305,47 +305,6 @@ nav {
                 </div>
             </div>
 
-            <!-- Update CGPA/SGPA Card -->
-            <!-- Update CGPA/SGPA Card -->
-<div class="col-lg-8 col-md-12 mb-4 d-flex">
-    <div class="card w-100">
-        <div class="card-body">
-            <i class="fas fa-edit"></i>
-            <h5 class="card-title">Update CGPA/SGPA</h5>
-            <form method="POST" action="{{ url_for('admin_dashboard') }}">
-                <input type="hidden" name="action" value="update_cgpa">
-                <div class="table-responsive">
-                    <table class="table table-striped mb-0">
-                        <thead>
-                            <tr>
-                                <th>USN</th>
-                                <th>CGPA</th>
-                                <th>SGPA</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in cgpa_records %}
-                            <tr>
-                                <td>{{ record.usn }}</td>
-                                <td>
-                                    <input type="number" step="0.01" name="cgpa_{{ record.usn }}" value="{{ record.cgpa }}" class="form-control" required>
-                                </td>
-                                <td>
-                                    <input type="number" step="0.01" name="sgpa_{{ record.usn }}" value="{{ record.sgpa }}" class="form-control" required>
-                                </td>
-                                <td>
-                                    <button type="submit" class="btn btn-custom" name="usn" value="{{ record.usn }}">Update</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 <!-- Add/Update Counsellor Card -->
 <div class="col-lg-4 col-md-6 mb-4 d-flex">
     <div class="card w-100">
@@ -421,6 +380,47 @@ nav {
     </div>
 </div>
 
+            <!-- Update CGPA/SGPA Card -->
+            <!-- Update CGPA/SGPA Card -->
+            <div class="col-lg-8 col-md-12 mb-4 d-flex">
+                <div class="card w-100">
+                    <div class="card-body">
+                        <i class="fas fa-edit"></i>
+                        <h5 class="card-title">Update CGPA/SGPA</h5>
+                        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                            <input type="hidden" name="action" value="update_cgpa">
+                            <div class="table-responsive">
+                                <table class="table table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>USN</th>
+                                            <th>CGPA</th>
+                                            <th>SGPA</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in cgpa_records %}
+                                        <tr>
+                                            <td>{{ record.usn }}</td>
+                                            <td>
+                                                <input type="number" step="0.01" name="cgpa_{{ record.usn }}" value="{{ record.cgpa }}" class="form-control" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" name="sgpa_{{ record.usn }}" value="{{ record.sgpa }}" class="form-control" required>
+                                            </td>
+                                            <td>
+                                                <button type="submit" class="btn btn-custom" name="usn" value="{{ record.usn }}">Update</button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
